@@ -1,0 +1,22 @@
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Segoe UI, Helvetica, Arial, sans-serif", "fontSize": "15px", "primaryColor": "#12161c", "primaryTextColor": "#f5f7fa", "primaryBorderColor": "#3a4250", "lineColor": "#7a8494"}}}%%
+flowchart LR
+    subgraph I["INTERACTIVE"]
+        direction TB
+        A["Owner + Architect"] --> B["discover intent"]
+        B --> C["audit the terrain"]
+        C --> D["decide architecture"]
+        D --> E["freeze acceptance"]
+        E --> F["write specifications"]
+    end
+
+    subgraph A2["AUTONOMOUS"]
+        direction TB
+        G["Fresh Builder per spec"] --> H["implement bounded scope"]
+        H --> I2["run project gates"]
+        I2 --> J["produce evidence"]
+        J --> K["commit and stop"]
+    end
+
+    F -- "approved digest" --> G
+    K -- "verification pack" --> L["Verifier"]
+    L --> M["Owner + Architect (independent review)"]

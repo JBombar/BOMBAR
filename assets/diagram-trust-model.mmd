@@ -1,0 +1,18 @@
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Segoe UI, Helvetica, Arial, sans-serif", "fontSize": "18px", "primaryColor": "#12161c", "primaryTextColor": "#f5f7fa", "primaryBorderColor": "#3a4250", "lineColor": "#7a8494"}}}%%
+flowchart TB
+    subgraph Row1[" "]
+        direction LR
+        Human["Human intent"] -->|"approved once"| Contract["Frozen contract"] -->|"bounds every session"| Agents["Autonomous agents"] --> Gate["Gate-correct"]
+    end
+
+    subgraph Row2[" "]
+        direction LR
+        Intent["Intent-correct"] --> World["World-correct"] --> Trust["Trustworthy software"]
+    end
+
+    Gate --> Intent
+
+    style Human fill:#5fb0ff,color:#0a0a0a,stroke:#3a4250
+    style Trust fill:#7ee0b8,color:#0a0a0a,stroke:#3a4250
+    style Row1 fill:transparent,stroke:transparent
+    style Row2 fill:transparent,stroke:transparent

@@ -1,0 +1,7 @@
+{
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "Segoe UI, Helvetica, Arial, sans-serif",
+    "background": "#0d1117"
+  }
+}
