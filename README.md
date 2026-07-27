@@ -16,13 +16,67 @@
 
 **B.O.M.B.A.R. — Bounded Orchestration Method for Building with Agents, Reliably.**
 
-Coding agents will happily redesign your product while you're not looking — and "all green" doesn't mean "what you asked for." BOMBAR draws a hard line between the part only a human can do (deciding what to build) and the part an agent can do safely (building exactly that, inside a frozen contract, with evidence to prove it).
+## Why BOMBAR exists
 
-BOMBAR was distilled from more than 6,000 hours of hands-on agentic development — the patterns that consistently held were kept, the ones that quietly let scope drift were cut. What remains is a small, deterministic set of rails, not a framework you have to trust blindly.
+Most agentic development looks like this:
+
+1. You describe what you want.
+2. The agent codes for hours.
+3. Tests pass.
+4. You discover it built something slightly different.
+5. You spend the next day undoing "helpful" refactorings.
+
+Every agentic developer has hit some version of the same three failures:
+
+- **Silent redesign** — the agent "helpfully" refactors the architecture while implementing a feature.
+- **Scope drift** — tests pass, but the feature does something subtly different from what was asked.
+- **"All green" lies** — green checks that never actually proved the intent was satisfied.
+
+BOMBAR replaces this with a contract:
+
+1. **You** decide intent, architecture, and acceptance.
+2. **The agent** executes exactly the approved specification.
+3. **Gates** prove the result matches the contract.
+4. **Evidence** records what happened, for audit.
+
+No surprises. No silent redesign. No "all green" lies.
+
+BOMBAR was distilled from thousands of hours of hands-on agentic development, building real products end to end — the patterns that consistently held were kept, the ones that quietly let scope drift were cut. What remains is a small, deterministic set of rails, not a framework you have to trust blindly.
 
 <p align="center">
   <img src="assets/diagram-trust-model.svg" alt="Human intent approved once into a frozen contract, bounding autonomous agents through gate-correct, intent-correct, and world-correct checks to trustworthy software" width="820">
 </p>
+
+## 30-second demo
+
+```bash
+# 1. Install BOMBAR into your project
+git clone https://github.com/JBombar/BOMBAR /tmp/bombar
+bash /tmp/bombar/bin/bombar.sh init ./my-project
+cd ./my-project
+
+# 2. Start an interactive architecture session
+bash .bombar/prepare-architect.sh
+# ...talk naturally with the Architect agent...
+
+# 3. Freeze the approved plan
+bash .bombar/validate-plan.sh --freeze --approved-by "Your Name"
+
+# 4. Run autonomous Builder sessions
+bash .bombar/run_bombar.sh
+# ...each slice executes, gates pass, evidence is written...
+
+# 5. Verify independently
+bash .bombar/prepare-verification.sh
+```
+
+Result: one approved spec → one evidence file → one commit → zero surprises.
+
+## Proven in real use
+
+BOMBAR wasn't designed on a whiteboard. It comes out of real, hands-on agentic development on real products — the specific failure modes above were lived, not hypothesized, and the rails exist because those failures were expensive enough to fix once, permanently.
+
+See [examples/](examples/) for filled, sanitized greenfield and brownfield walkthroughs of the full lifecycle.
 
 ## The boundary
 
@@ -84,6 +138,21 @@ Read [Getting started](docs/getting-started.md) for the complete first run.
 
 If you are evaluating whether the method itself transferred, use the [methodology-transfer evaluation](docs/transfer-evaluation.md) instead of relying on impression.
 
+## Who BOMBAR is for
+
+- Teams shipping complex features where scope drift costs real money.
+- Solo developers who need to delegate overnight and sleep soundly.
+- Projects with audit, compliance, or safety requirements.
+- Brownfield systems where "just refactor everything" is not an option.
+- Anyone who has watched an agent silently redesign their auth layer.
+
+## Who BOMBAR is not for
+
+- Quick prototypes where "good enough" is the bar.
+- Teams who want the agent to "figure it out" without specifications.
+- Projects with no test infrastructure — gates need something to gate against.
+- Developers who enjoy debugging surprise refactorings at 3am.
+
 ## What BOMBAR installs
 
 `bombar init` adds a self-contained `.bombar/` control kit and a visible `__development/bombar/` decision trail to the target repository. The kit contains:
@@ -107,15 +176,22 @@ Brownfield specifications require compatibility, non-disruption, rollback, and l
 
 The contract is provider-neutral. An adapter has one responsibility: receive a prompt-file path and start one fresh coding-agent session. BOMBAR ships example adapters and a fake adapter for its own tests. Configure the adapter explicitly; the runner never guesses credentials or silently chooses a provider.
 
-## What BOMBAR can and cannot guarantee
+## What BOMBAR guarantees
 
-BOMBAR cannot make every model equally capable, and no framework can guarantee correct software. It can make intent explicit, constrain model variance, stop unapproved redesign, expose weak or incomplete output, and distinguish:
+- ✅ **No silent redesign** — agents execute approved specs, nothing else.
+- ✅ **Deterministic gates** — green means "verified against contract," not "probably fine."
+- ✅ **Evidence for every slice** — what changed, why, and how it's proven.
+- ✅ **Scope enforcement** — protected paths cannot be touched without owner approval.
+- ✅ **Fresh isolation** — one session per slice, no conversational state bleeding.
 
-1. **Gate-correct** — tests, checks, and build pass.
-2. **Intent-correct** — the result satisfies the approved product contract.
-3. **World-correct** — the intended result occurs at an external boundary.
+## What requires your judgment
 
-All three matter. Green tests alone are never the final claim.
+- 🎯 **Product intent** — you decide what to build.
+- 🎯 **Architecture** — you choose the design.
+- 🎯 **Live acceptance** — you verify real-world behavior.
+- 🎯 **Model capability** — BOMBAR cannot make a weak model strong.
+
+Gate-correct, intent-correct, and world-correct are three different claims. All three matter. Green tests alone are never the final one.
 
 ## Repository map
 
@@ -132,7 +208,11 @@ tests/        hermetic fixture tests (no live agent, network, or spend)
 
 ## Status
 
-This repository is the first public release of a methodology extracted from repeated real product builds. Treat `v0.1` as an executable hypothesis: use it, keep the evidence, report where the transfer succeeds or fails, and improve the rails from escaped defects.
+BOMBAR is `v0.1` — the first public release of a method proven through real, hands-on agentic development, not designed in the abstract.
+
+The core patterns are stable. The framework will evolve as more projects test it. Every escaped defect strengthens the rails.
+
+Use it. Keep the evidence. Report where the transfer succeeds or fails.
 
 ## License
 
