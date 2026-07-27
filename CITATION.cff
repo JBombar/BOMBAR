@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If BOMBAR helps your work, please cite the project."
+title: "BOMBAR: Bounded Orchestration Method for Building with Agents, Reliably"
+type: software
+authors:
+  - family-names: "Bombár"
+    given-names: "Jakub"
+version: 0.1.0
+date-released: 2026-07-27
+license: Apache-2.0
