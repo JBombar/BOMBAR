@@ -30,7 +30,7 @@ The governing rule is simple:
 Requirements: Git, Bash, and Python 3.11+.
 
 ```bash
-git clone <your-fork-or-the-published-url> bombar
+git clone https://github.com/JBombar/BOMBAR bombar
 cd bombar
 bash bin/bombar.sh doctor
 bash bin/bombar.sh init /path/to/your-project
