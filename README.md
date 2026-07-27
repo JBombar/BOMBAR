@@ -1,8 +1,45 @@
+<p align="center">
+  <img src="assets/logo.svg" alt="BOMBAR — Bounded Orchestration Method for Building with Agents, Reliably" width="720">
+</p>
+
+<p align="center">
+  <strong>English</strong> | <a href="README.zh-CN.md">简体中文</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/JBombar/BOMBAR/actions/workflows/test.yml"><img src="https://github.com/JBombar/BOMBAR/actions/workflows/test.yml/badge.svg" alt="Test status"></a>
+  <a href="https://github.com/JBombar/BOMBAR/releases/tag/v0.1.0"><img src="https://img.shields.io/badge/release-v0.1.0-blue" alt="Release v0.1.0"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-informational" alt="License: Apache 2.0"></a>
+</p>
+
 # BOMBAR
 
-**Bounded Orchestration Method for Building with Agents, Reliably.**
+**B.O.M.B.A.R. — Bounded Orchestration Method for Building with Agents, Reliably.**
 
-BOMBAR turns a human-approved product intent into bounded implementation work that fresh coding-agent sessions can execute and verify. It does **not** automate product judgment away. The Architect and project owner establish intent interactively; autonomous Builders begin only after the resulting contract and specifications are approved and frozen.
+Coding agents will happily redesign your product while you're not looking — and "all green" doesn't mean "what you asked for." BOMBAR draws a hard line between the part only a human can do (deciding what to build) and the part an agent can do safely (building exactly that, inside a frozen contract, with evidence to prove it).
+
+BOMBAR was distilled from more than 6,000 hours of hands-on agentic development — the patterns that consistently held were kept, the ones that quietly let scope drift were cut. What remains is a small, deterministic set of rails, not a framework you have to trust blindly.
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Segoe UI, Helvetica, Arial, sans-serif", "fontSize": "18px", "primaryColor": "#12161c", "primaryTextColor": "#f5f7fa", "primaryBorderColor": "#3a4250", "lineColor": "#7a8494"}}}%%
+flowchart TB
+    subgraph Row1[" "]
+        direction LR
+        Human["Human intent"] -->|"approved once"| Contract["Frozen contract"] -->|"bounds every session"| Agents["Autonomous agents"] --> Gate["Gate-correct"]
+    end
+
+    subgraph Row2[" "]
+        direction LR
+        Intent["Intent-correct"] --> World["World-correct"] --> Trust["Trustworthy software"]
+    end
+
+    Gate --> Intent
+
+    style Human fill:#5fb0ff,color:#0a0a0a,stroke:#3a4250
+    style Trust fill:#7ee0b8,color:#0a0a0a,stroke:#3a4250
+    style Row1 fill:transparent,stroke:transparent
+    style Row2 fill:transparent,stroke:transparent
+```
 
 ## The boundary
 
@@ -19,6 +56,31 @@ Owner <-> Architect                     Fresh Builder per specification
                                                  |
 INTERACTIVE / INDEPENDENT                        v
 Owner + Architect <--- verification pack <--- Verifier
+```
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "Segoe UI, Helvetica, Arial, sans-serif", "fontSize": "15px", "primaryColor": "#12161c", "primaryTextColor": "#f5f7fa", "primaryBorderColor": "#3a4250", "lineColor": "#7a8494"}}}%%
+flowchart LR
+    subgraph I["INTERACTIVE"]
+        direction TB
+        A["Owner + Architect"] --> B["discover intent"]
+        B --> C["audit the terrain"]
+        C --> D["decide architecture"]
+        D --> E["freeze acceptance"]
+        E --> F["write specifications"]
+    end
+
+    subgraph A2["AUTONOMOUS"]
+        direction TB
+        G["Fresh Builder per spec"] --> H["implement bounded scope"]
+        H --> I2["run project gates"]
+        I2 --> J["produce evidence"]
+        J --> K["commit and stop"]
+    end
+
+    F -- "approved digest" --> G
+    K -- "verification pack" --> L["Verifier"]
+    L --> M["Owner + Architect (independent review)"]
 ```
 
 The governing rule is simple:
