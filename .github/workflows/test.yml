@@ -1,0 +1,23 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Configure test Git identity
+        run: |
+          git config --global user.name "BOMBAR CI"
+          git config --global user.email "bombar-ci@example.invalid"
+      - name: Run hermetic suite
+        run: bash tests/run.sh
