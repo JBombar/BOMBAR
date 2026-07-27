@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bombar.dev/schemas/evidence.schema.json",
+  "title": "BOMBAR completion marker",
+  "type": "object",
+  "required": ["schema_version", "spec_id", "spec_sha256", "commit", "completed_at", "evidence", "live_probe_pending"],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "spec_id": {"type": "string"},
+    "spec_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "commit": {"type": "string", "minLength": 7},
+    "completed_at": {"type": "string"},
+    "evidence": {"type": "string"},
+    "live_probe_pending": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}
