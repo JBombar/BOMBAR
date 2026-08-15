@@ -31,17 +31,28 @@ else:
 PY
 }
 
+fmt_hms() {
+  local s="$1"
+  printf '%02d:%02d:%02d' $((s/3600)) $(((s%3600)/60)) $((s%60))
+}
+
 heartbeat_run() {
   local label="$1" logfile="$2" heartbeat="$3"; shift 3
   "$@" >"$logfile" 2>&1 &
-  local pid=$! start now last
+  local pid=$! start now last elapsed elapsed_fmt
   start=$(date +%s)
   while kill -0 "$pid" 2>/dev/null; do
     sleep "$heartbeat" || true
     kill -0 "$pid" 2>/dev/null || break
     now=$(date +%s)
+    elapsed=$((now-start))
+    elapsed_fmt="$(fmt_hms "$elapsed")"
     last="$(tail -n 1 "$logfile" 2>/dev/null | tr -d '\r' | cut -c1-160)"
-    log "$label still running — $((now-start))s — ${last:-no output yet}"
+    if [ -n "$last" ]; then
+      log "$label still running — $elapsed_fmt — $last"
+    else
+      log "$label still running — $elapsed_fmt"
+    fi
   done
   wait "$pid"
 }
@@ -141,10 +152,17 @@ allow_live="$(profile_value execution.allow_live_actions_unattended)"
 "$py" .bombar/lib/bombar.py specs --root "$ROOT_DIR" --require-approval > "$STATE_DIR/specs.json" || die "cannot load approved specifications"
 spec_count="$($py -c 'import json; print(len(json.load(open(".bombar/state/specs.json"))))')"
 
-log "Running baseline gates before any Builder receives the repository"
 baseline_log="$LOG_DIR/baseline.gates.log"
-run_gates "$baseline_log" baseline || die "baseline gates are red; fix or deliberately redesign the gate policy interactively"
+project_state="$(profile_value project.state 2>/dev/null || echo unknown)"
+done_count="$($py -c 'import json,sys; print(sum(1 for s in json.load(open(sys.argv[1])) if s.get("status")=="done"))' "$STATE_DIR/specs.json" 2>/dev/null || echo -1)"
+if [ "$project_state" = greenfield ] && [ "$done_count" -eq 0 ] 2>/dev/null; then
+  log "Greenfield first-bootstrap run (no slices completed yet): skipping the baseline gate check — the toolchain does not exist until the first slice builds it. Per-slice gates remain fully enforced."
+else
+  log "Running baseline gates before any Builder receives the repository"
+  run_gates "$baseline_log" baseline || die "baseline gates are red; fix or deliberately redesign the gate policy interactively"
+fi
 
+run_start=$(date +%s)
 for ((index=0; index<spec_count; index++)); do
   sid="$(spec_field "$index" id)"
   title="$(spec_field "$index" title)"
@@ -167,6 +185,7 @@ PY
   fi
 
   log "START $sid — $title"
+  slice_start=$(date +%s)
   pre_head="$(git rev-parse HEAD)"
   success=0
   last_log=""
@@ -228,7 +247,7 @@ PY
     "$py" .bombar/lib/bombar.py mark-done "$sid" --root "$ROOT_DIR" >> "$verification_log" 2>&1 || {
       log "$sid evidence schema FAILED"; last_log="$verification_log"; continue;
     }
-    log "DONE $sid — $(git log -1 --oneline)"
+    log "DONE $sid in $(fmt_hms $(( $(date +%s) - slice_start ))) — $(git log -1 --oneline)"
     "$py" .bombar/lib/bombar.py specs --root "$ROOT_DIR" --require-approval > "$STATE_DIR/specs.json" || die "cannot refresh specification status"
     success=1
     break
@@ -241,5 +260,5 @@ PY
   fi
 done
 
-log "All approved implementation specifications completed."
+log "All approved implementation specifications completed — $spec_count spec(s) in $(fmt_hms $(( $(date +%s) - run_start )))."
 log "Next: bash .bombar/prepare-verification.sh"
