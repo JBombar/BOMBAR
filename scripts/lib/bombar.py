@@ -379,9 +379,11 @@ def path_matches(path: str, pattern: str) -> bool:
 
 def changed_paths(root: pathlib.Path, base: str) -> list[str]:
     committed = run_git(root, "diff", "--name-only", f"{base}..HEAD", check=False).splitlines()
-    working = run_git(root, "status", "--porcelain", check=False).splitlines()
-    working_paths = [line[3:].replace("\\", "/") for line in working if len(line) > 3]
-    return sorted(set(path for path in committed + working_paths if path))
+    unstaged = run_git(root, "diff", "--name-only", check=False).splitlines()
+    staged = run_git(root, "diff", "--name-only", "--cached", check=False).splitlines()
+    untracked = run_git(root, "ls-files", "--others", "--exclude-standard", check=False).splitlines()
+    all_lines = committed + unstaged + staged + untracked
+    return sorted(set(line.replace("\\", "/").strip() for line in all_lines if line.strip()))
 
 
 def check_scope(root: pathlib.Path, spec_id: str, base: str) -> None:
