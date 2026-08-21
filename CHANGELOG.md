@@ -2,6 +2,15 @@
 
 All notable changes to BOMBAR are documented here.
 
+## [0.3.0] — 2026-08-21
+
+Keep the harness thin and the sessions warm: stop paying a cold-start tax on retries, and let the reviewer that already reads the whole plan also judge how it's sliced.
+
+### Added
+
+- **Warm-resume retries.** When a builder's work fails the runner's independent verification gate, the **first retry now resumes the same session** (warm — it already knows the codebase and its own prior work) instead of spawning a cold one that must rediscover everything. A flaky timeout or a small fix is handled in minutes, the way an interactive session would, rather than in a fresh ~30-minute session. Best-effort and portable: the claude-code adapter continues the session (`--continue` on `BOMBAR_RESUME=1`); adapters without session continuation ignore it and run the self-contained retry prompt fresh. Further retries run fresh — the "fresh eyes" escalation for a genuinely wrong approach.
+- **Spec Auditor also reviews slicing.** In the same completeness pass, the auditor flags decomposition problems — a journey fragmented across too many small specs (recommend merge), an oversized/mixed spec (recommend split), or a horizontal-layer spec with no reachable outcome (recommend re-slicing vertically) — as proposals for the Architect. Good slicing at plan time is what makes one-session-per-slice the right size, and it removes the need for any runtime spec-combining machinery.
+
 ## [0.2.0] — 2026-08-21
 
 Two lessons from running real projects through BOMBAR: the framework was hobbling capable models with ceremony that protected nothing, and it validated the *structure* of a plan without ever checking whether the plan delivered a *usable product*.

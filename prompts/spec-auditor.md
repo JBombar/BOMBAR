@@ -49,10 +49,21 @@ Example: *"The specs let a customer place an order but nothing lets them cancel 
 
 Continue until **every enumerated launch journey is either owned by a spec with a required end-to-end test, or explicitly deferred by the owner**. Update `JOURNEY_MAP.md` as the conversation resolves each one.
 
+### 5. Review the slicing (same map, second lens)
+
+The journey↔spec map you just built also reveals whether the decomposition is *shaped* for builders to deliver working, reachable increments — not only whether every journey is covered. While you hold this whole-plan context, flag:
+
+- a single journey **fragmented** across many small specs that only add up to something usable at the very end → recommend **merging** them into one coherent vertical slice (which is also the natural unit for one warm builder session);
+- a spec that is **oversized or bundles two unrelated jobs** → recommend **splitting** it;
+- a **horizontal-layer** spec with no user-observable outcome ("the X domain," "the Y service") that no actor can reach on its own → recommend **re-slicing vertically** so the slice delivers a reachable outcome.
+
+These are **recommendations to the Architect**, not rewrites — you propose, the Architect re-slices. The bar is the same one question the whole review turns on: *can a builder turn each slice into a working, reachable increment, leaving only polish rather than structural work?*
+
 ## Outputs
 
 - A completed / updated `__development/bombar/JOURNEY_MAP.md` (actor → journey → steps → owning spec(s) → required test → status: owned | deferred).
 - A findings list, each marked **critical** (a launch journey unreachable or unowned) or **note** (minor gap, ambiguity, or an accepted deferral).
+- **Slicing recommendations** — merge / split / re-slice-vertically — as proposals for the Architect.
 - A one-line verdict: **complete** (every launch journey owned or deferred) or **incomplete** (name the blocking gaps).
 
 The Architect resolves every critical finding before the owner freezes. You certify completeness; you do not freeze, and you do not implement.
