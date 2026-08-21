@@ -76,6 +76,8 @@ Before declaring the plan ready:
 
 - walk the owner through outcome, architecture, irreversible choices, non-goals, risks, acceptance, and release path;
 - surface every remaining unknown and recommended default;
+- map every launch-critical user journey in `__development/bombar/JOURNEY_MAP.md`, and confirm each is owned by a spec whose required end-to-end test drives it from the actor's seat, or is explicitly deferred by the owner;
+- run an independent **Spec Auditor** in a fresh session (`prompts/spec-auditor.md`) over the brief, acceptance, and specifications, and resolve every *critical* completeness finding it raises before freeze — the model that wrote the specs cannot see its own omissions;
 - ensure the project profile contains real gates and an explicitly selected agent adapter;
 - remove template files and every TODO/TBD placeholder;
 - run `bash .bombar/validate-plan.sh` and repair structural errors;
@@ -89,6 +91,7 @@ Before declaring the plan ready:
 - `__development/bombar/03_INVARIANTS.md`
 - `__development/bombar/04_ACCEPTANCE_CONTRACT.md`
 - `__development/bombar/05_IMPLEMENTATION_PLAN.md`
+- `__development/bombar/JOURNEY_MAP.md`
 - ADRs when decisions warrant them
 - one implementation specification per bounded slice
 - a real `.bombar/project-profile.json`

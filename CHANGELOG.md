@@ -2,6 +2,22 @@
 
 All notable changes to BOMBAR are documented here.
 
+## [0.2.0] — 2026-08-21
+
+Two lessons from running real projects through BOMBAR: the framework was hobbling capable models with ceremony that protected nothing, and it validated the *structure* of a plan without ever checking whether the plan delivered a *usable product*.
+
+### Changed — trust the models, guard only the real boundaries
+
+- Removed scope / protected-path enforcement and the evidence-heading gate. A green, gate-passing, committed build is never discarded over a touched path or evidence formatting. Guardrails now sit only at real boundaries: authority, external effects, governed artifacts, and the configured gate.
+- Broadened Builder autonomy — Builders may touch any sensible application path and do the connective work a slice needs; they stop only for genuinely unsafe or out-of-authority actions (business policy, invariant change, destructive migration, live/paid/production effects).
+- Raised defaults: `max_retries` 1 → 2, adapter `max_turns` 300 → 600.
+
+### Added — semantic completeness (stop shipping green-but-unusable products)
+
+- Journey-first slicing rule in the Architect: at least one slice must be the end-to-end path a real user takes to get the core value, built early as a walking skeleton with a required test that drives it from the actor's seat.
+- **Spec Auditor** (`prompts/spec-auditor.md`): an independent, fresh-session completeness review before freeze. It enumerates the journeys a product of this type needs, diffs them against the specifications, and interrogates the owner about gaps with proposed defaults — catching human outcomes that would otherwise be missing or unreachable.
+- **Journey Map** governed artifact (`__development/bombar/JOURNEY_MAP.md`): every launch journey owned by a spec with a required end-to-end test, or explicitly deferred by the owner.
+
 ## [0.1.0] — 2026-07-27
 
 ### Added

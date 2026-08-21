@@ -53,3 +53,7 @@ The owner returns when:
 - final semantic acceptance is due.
 
 Everything else is a candidate for bounded automation.
+
+## Guaranteeing the journeys are complete
+
+The owner cannot always name every journey up front — so before freeze an independent **Spec Auditor** (`prompts/spec-auditor.md`) enumerates the journeys a product of this type normally needs, diffs them against the specifications, and interrogates the owner (with proposed defaults) about anything missing or unreachable. The result is the **Journey Map** (`__development/bombar/JOURNEY_MAP.md`): every launch journey owned by a spec with a required end-to-end test that drives it from the actor's seat, or explicitly deferred. The plan does not freeze while a launch journey is unowned. This is the check whose absence lets a structurally green plan ship a product no one can actually use.

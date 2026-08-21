@@ -26,6 +26,10 @@ Owns ordering, freshness, retries, gates, scope checks, evidence requirements, c
 
 Reviews the actual diff and observable behavior against the frozen contract. It tests plan conformance, searches for vacuous tests and unintended changes, and separates offline correctness from live acceptance.
 
+## Spec Auditor
+
+An independent completeness reviewer, run in a fresh session before freeze. Given the owner's intent (brief, acceptance) and the proposed specifications, it enumerates the full set of user journeys the product needs — from domain knowledge, not only what the owner stated — and finds every human outcome that would be missing or unreachable if Builders implemented the specs literally. It interrogates the owner about the gaps with proposed defaults, produces the Journey Map, and certifies completeness. It probes WHAT users must be able to do, never HOW to build it, and it neither freezes nor implements. Its independence from the spec author is the point: the model that wrote the specs cannot see its own omissions. Prompt: `prompts/spec-auditor.md`.
+
 ## Auditor
 
 Performs read-only vision, architecture, implementation, operational, and documentation alignment reviews. An Auditor produces findings and recommendations, not silent fixes.
