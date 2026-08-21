@@ -93,12 +93,16 @@ PY
 }
 
 write_prompt() {
-  local index="$1" attempt="$2" prior_log="${3:-}"
+  local index="$1" attempt="$2" prior_log="${3:-}" mode="${4:-fresh}"
   local sid title spec_path risk change_mode live_probe prompt_path
   sid="$(spec_field "$index" id)"; title="$(spec_field "$index" title)"; spec_path="$(spec_field "$index" path)"
   risk="$(spec_field "$index" risk)"; change_mode="$(spec_field "$index" change_mode)"; live_probe="$(spec_field "$index" requires_live_probe)"
   prompt_path="$CONTEXT_DIR/${sid}_ATTEMPT_${attempt}.md"
   {
+    if [ "$mode" = resume ]; then
+      printf '# Continue and fix — your prior attempt on this specification is in the working tree\n\n'
+      printf 'Your previous attempt left its changes in the working tree, and independent verification (the gate) then failed. If you retain context from an earlier turn of this session, use it — do NOT start over or rediscover the codebase. Diagnose the SPECIFIC failure below first: it may be a flaky or environmental issue (e.g. a test that timed out under machine load) rather than a logic bug, in which case the right fix may be to re-run, or to raise a too-tight limit, not to rebuild. Fix only what is actually wrong, then run the gate yourself to confirm green. The contract and assignment follow for reference.\n\n---\n\n'
+    fi
     cat .bombar/prompts/builder.md
     printf '\n\n## Generated assignment\n\n'
     printf -- '- Specification: `%s`\n' "$spec_path"
@@ -108,9 +112,13 @@ write_prompt() {
     printf -- '- Change mode: `%s`\n' "$change_mode"
     printf -- '- Live probe required for final acceptance: `%s`\n' "$live_probe"
     printf -- '- Evidence file required: `__development/bombar/evidence/%s_EVIDENCE.md`\n' "$sid"
-    printf -- '- Attempt: `%s` (this is a fresh session)\n' "$attempt"
+    if [ "$mode" = resume ]; then
+      printf -- '- Attempt: `%s` (continuing the same session — warm context)\n' "$attempt"
+    else
+      printf -- '- Attempt: `%s` (this is a fresh session)\n' "$attempt"
+    fi
     if [ -n "$prior_log" ] && [ -f "$prior_log" ]; then
-      printf '\n## Prior deterministic verification failure\n\nA previous fresh attempt left the following verification output. Diagnose the root cause; do not merely silence the checker.\n\n```text\n'
+      printf '\n## Deterministic verification failure to fix\n\nThe following verification output is what failed. Diagnose the root cause; do not merely silence the checker.\n\n```text\n'
       tail -n 180 "$prior_log"
       printf '\n```\n'
     fi
@@ -191,11 +199,21 @@ PY
   last_log=""
   for ((attempt=0; attempt<=max_retries; attempt++)); do
     attempt_number=$((attempt+1))
-    prompt="$(write_prompt "$index" "$attempt_number" "$last_log")"
+    # The first retry resumes the warm session (it already knows the codebase and
+    # its own prior work — a flake or a small fix is handled in minutes). The
+    # initial attempt and any further retries run fresh; the last fresh retry is the
+    # "fresh eyes" escalation for a genuinely wrong approach. Resume is best-effort:
+    # adapters that cannot continue a session just run the (self-contained) prompt.
+    if [ "$attempt" -eq 1 ]; then mode=resume; resume_env=1; else mode=fresh; resume_env=0; fi
+    prompt="$(write_prompt "$index" "$attempt_number" "$last_log" "$mode")"
     agent_log="$LOG_DIR/${sid}.attempt-${attempt_number}.agent.log"
     verification_log="$LOG_DIR/${sid}.attempt-${attempt_number}.verification.log"
-    log "$sid attempt $attempt_number/$((max_retries+1)) — fresh agent via $adapter_rel"
-    BOMBAR_UNATTENDED=1 BOMBAR_SPEC_ID="$sid" heartbeat_run "$sid agent" "$agent_log" "$heartbeat" "$adapter" "$prompt" || true
+    if [ "$mode" = resume ]; then
+      log "$sid attempt $attempt_number/$((max_retries+1)) — resuming warm session via $adapter_rel"
+    else
+      log "$sid attempt $attempt_number/$((max_retries+1)) — fresh agent via $adapter_rel"
+    fi
+    BOMBAR_UNATTENDED=1 BOMBAR_SPEC_ID="$sid" BOMBAR_RESUME="$resume_env" heartbeat_run "$sid agent" "$agent_log" "$heartbeat" "$adapter" "$prompt" || true
 
     if [ "$(git rev-parse HEAD)" = "$pre_head" ] && [ -z "$(git status --porcelain)" ]; then
       printf 'NO-OP: the agent produced no commit and no working-tree change.\n' > "$verification_log"
@@ -248,7 +266,7 @@ PY
   done
 
   if [ "$success" -ne 1 ]; then
-    record_blocker "$sid" "verification remained red after $((max_retries+1)) fresh attempt(s)" "$last_log"
+    record_blocker "$sid" "verification remained red after $((max_retries+1)) attempt(s) (warm resume + fresh)" "$last_log"
     log "BLOCKED $sid — work preserved; chain halted"
     exit 1
   fi
