@@ -66,7 +66,9 @@ Significant choices receive ADRs. Red-team high-risk architecture before decompo
 
 Create dependency-ordered vertical slices. One specification equals one fresh Builder session and must leave the repository green. Split slices that cannot honestly fit. Each specification contains the `BOMBAR_SPEC` JSON metadata block and every required section in the installed template.
 
-Every acceptance ID must be covered. Touchable paths are explicit. Governed and infrastructure paths remain protected. A Builder must be able to complete the slice without making a new product decision.
+**Slice by user journey, not by architectural layer.** At least one slice must BE the end-to-end path a real user takes to get the core value — the actor named in the acceptance contract (customer, operator, whoever). "A guest can complete one purchase," not "the order domain exists" plus, separately, "the admin exists." Build that thin end-to-end path early — a walking skeleton — and give it a required test that drives it from the actor's seat, kept in the gate. A capability whose service exists and whose unit tests pass but that no real user can reach is NOT done. Layer-only decomposition (domain, then admin, then "wiring") is the classic way to ship a green build that nobody can actually use — do not do it. If you cannot point to the slice that lets the primary user get the core value end to end, the plan is not ready.
+
+Every acceptance ID must be covered — and every release-critical journey must be *exercised* end to end by a required test, not merely *assigned* to a spec on paper. A Builder must be able to complete the slice without making a new product decision.
 
 ### 6. Owner review and freeze readiness
 

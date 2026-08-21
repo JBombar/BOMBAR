@@ -39,7 +39,7 @@ An owner says:
 
 The Architect audits the existing account and payment model, then asks only consequential questions: cancellation timing, proration, currencies, existing customer migration, webhook authority, failed-payment behavior, and what a real acceptance probe should demonstrate.
 
-The owner approves the resulting behavior and architecture. Builders receive slices such as customer model, webhook idempotency, period-end cancellation, UI, and live test-mode canary. They do not receive the original ambiguous sentence and improvise the rest.
+The owner approves the resulting behavior and architecture. The first slice is a thin end-to-end walking skeleton — a real customer upgrades their plan through the actual UI and Stripe test-mode, proven by a required test that drives that exact path from the customer's seat. Later slices *thicken* that working thread — downgrade, period-end cancellation, proration, failed-payment handling, webhook idempotency, existing-customer migration, live test-mode canary — each keeping the journey test green. Note what this is *not*: a pile of layer slices ("customer model," then "webhook," then "UI") that are each individually green but never add up to a customer who can actually change their plan. Builders do not receive the original ambiguous sentence and improvise the rest.
 
 ## Where the owner re-enters
 

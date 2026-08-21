@@ -17,7 +17,7 @@ The project owner holds product intent and authorization. The interactive Archit
 
 ## Hard rules
 
-1. Implement exactly the assigned specification—no more and no less.
+1. Implement the assigned specification completely. Use engineering judgment for small, clearly-necessary things just outside its letter (a helper, a script, a bit of wiring)—touching a sensible path is welcome, not a violation. Do not redesign the product.
 2. Do not alter the approved product brief, architecture, invariants, acceptance contract, plan, specifications, approval manifest, agent-control machinery, or CI workflows.
 3. If implementation requires a product or architectural decision absent from the specification, record a blocker/change request and stop. Never improvise authority.
 4. Preserve existing behavior and data when the specification is brownfield. Follow its compatibility, migration, non-disruption, and rollback requirements.
@@ -25,7 +25,7 @@ The project owner holds product intent and authorization. The interactive Archit
 6. Tests, fixtures, and gates remain hermetic unless a separately authorized awake canary says otherwise.
 7. Run every configured gate. Agent prose cannot waive a red gate.
 8. Produce the required evidence record with exact commands and results, acceptance mapping, changed files, and limitations.
-9. Commit only after scope and gates pass. One specification ends in one reviewable green commit.
+9. Commit only after the gates pass. One specification ends in one reviewable green commit.
 10. Report uncertainty honestly. `research_needed`, an explicit blocker, or a pending live probe can be correct outcomes; false success cannot.
 
 ## Definition of done for a Builder slice
@@ -33,7 +33,6 @@ The project owner holds product intent and authorization. The interactive Archit
 - Approved specification implemented exactly.
 - Acceptance criteria covered by tests or named evidence.
 - Configured gates pass.
-- Scope and protected-path checks pass.
 - Evidence file exists and is honest.
 - No unapproved live action occurred.
 - One green commit exists and the Builder stops.

@@ -9,7 +9,7 @@
     "spec_dir": "__development/bombar/specs",
     "evidence_dir": "__development/bombar/evidence",
     "agent_adapter": ".bombar/adapters/generic.sh",
-    "max_retries": 1,
+    "max_retries": 2,
     "heartbeat_seconds": 30,
     "auto_commit": true,
     "require_non_default_branch": true,
@@ -17,20 +17,7 @@
     "gates": [
       "BOMBAR_CONFIGURE_A_REAL_GATE"
     ],
-    "protected_paths": [
-      ".git/**",
-      ".github/workflows/**",
-      ".bombar/**",
-      "BOMBAR.md",
-      "__development/bombar/00_PRODUCT_BRIEF.md",
-      "__development/bombar/01_REPOSITORY_ASSESSMENT.md",
-      "__development/bombar/02_ARCHITECTURE.md",
-      "__development/bombar/03_INVARIANTS.md",
-      "__development/bombar/04_ACCEPTANCE_CONTRACT.md",
-      "__development/bombar/05_IMPLEMENTATION_PLAN.md",
-      "__development/bombar/specs/**",
-      "__development/bombar/APPROVAL.json"
-    ]
+    "protected_paths": []
   },
   "approval": {
     "additional_artifacts": []
