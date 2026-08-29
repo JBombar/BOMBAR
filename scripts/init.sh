@@ -27,6 +27,7 @@ cp -R "$ROOT_DIR/templates/project/." "$target/"
 mkdir -p "$target/.bombar/lib" "$target/.bombar/prompts" "$target/.bombar/adapters" "$target/.bombar/schemas"
 cp "$ROOT_DIR/scripts/lib/bombar.py" "$target/.bombar/lib/bombar.py"
 cp "$ROOT_DIR/scripts/lib/common.sh" "$target/.bombar/lib/common.sh"
+cp "$ROOT_DIR/scripts/lib/telemetry.py" "$target/.bombar/lib/telemetry.py"
 cp "$ROOT_DIR/scripts/installed/"*.sh "$target/.bombar/"
 cp "$ROOT_DIR/prompts/"*.md "$target/.bombar/prompts/"
 cp "$ROOT_DIR/adapters/"*.sh "$target/.bombar/adapters/"
@@ -45,7 +46,7 @@ PY
 
 gitignore="$target/.gitignore"
 touch "$gitignore"
-for line in ".bombar/logs/" ".bombar/state/" ".bombar/context/"; do
+for line in ".bombar/logs/" ".bombar/state/" ".bombar/context/" ".bombar/runtime/"; do
   grep -qxF "$line" "$gitignore" 2>/dev/null || printf '%s\n' "$line" >> "$gitignore"
 done
 

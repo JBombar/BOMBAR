@@ -106,7 +106,7 @@ The default profile refuses to run Builders on the default branch.
 bash .bombar/run_bombar.sh
 ```
 
-The runner first requires a clean tree and green baseline gates. It then executes specifications in dependency order, one fresh session per attempt. It verifies scope, protected paths, gates, evidence, commit, and approval integrity itself.
+The runner first requires a clean tree and green baseline gates. It then works through the obligations in dependency order with **one continuing Engineering Partner** (id-addressed session, resumed across obligations and retries). It owns gates, commits, completion markers, approval-digest integrity, and telemetry. Watch `.bombar/runtime/run.jsonl` and the end-of-run summary for objective run facts.
 
 Monitor:
 
@@ -115,7 +115,7 @@ tail -f .bombar/logs/run_bombar.log
 bash .bombar/status.sh
 ```
 
-If a slice blocks, the runner preserves the work, records the failure, and halts. Return to an interactive Architect session only when the blocker requires a new decision or changed scope.
+If an obligation blocks, the runner preserves the work, records the failure, and halts. Return to an interactive Architecture Partner session only when the blocker requires a new decision or changed scope.
 
 ## 8. Verify independently
 
@@ -123,7 +123,7 @@ If a slice blocks, the runner preserves the work, records the failure, and halts
 bash .bombar/prepare-verification.sh
 ```
 
-Start a new independent review session with the generated verifier prompt. Do not reuse a Builder session. Resolve findings and perform required live probes awake under explicit authorization.
+Start a new, independent review session with the generated reviewer prompt — a fresh context, never the Engineering Partner's. The Independent Engineering Reviewer judges whether this is coherent, production-quality software, not only literal spec compliance. Resolve findings and perform required live probes awake under explicit authorization.
 
 ## 9. Evaluate the methodology transfer
 

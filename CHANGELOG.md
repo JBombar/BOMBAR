@@ -2,6 +2,23 @@
 
 All notable changes to BOMBAR are documented here.
 
+## [0.4.0] — 2026-08-29
+
+The Engineering Partner release: stop framing the implementer as a disposable executor and start treating it as a trusted, continuing engineer responsible for the whole product — then observe, with lightweight telemetry, what continuity and responsibility actually do. Motivated by a forensic review of a real project where an N+1 query fan-out and a Supabase/postgres.js production freeze escaped a framework strong at proving *specified* behavior but silent on *engineering fitness* and *current external-system behavior*. The bet: better framing, continuity, information, and independent feedback should prevent such defects at the source — with cheap sensors and a fresh reviewer as defense-in-depth, not as a growing rule catalogue.
+
+### Changed — participant model: from disposable executor to Engineering Partner
+
+- **One Engineering Partner continues across all obligations**, normally in a single warm session, carrying accumulated product/repository understanding forward. The runner drives id-addressed sessions (Claude Code `--session-id`/`--resume`), not per-spec cold starts. A new session is created only when continuation is impossible — never because an obligation finished, a subsystem changed, or context grew. Deterministic/topological obligation ordering is preserved; there is no LLM orchestrator.
+- **Rewritten role prompts and contract.** The implementer prompt (`prompts/builder.md`) is now an Engineering Partner with wide engineering agency inside approved product truth, an explicit responsibility for quality/coherence/reliability/maintainability, and encouragement to raise and resolve its own engineering questions and to ground load-bearing external-system decisions in current docs or an empirical probe. The reviewer (`prompts/verifier.md`) is now a fresh **Independent Engineering Reviewer** whose question is "is this coherent, production-quality software?" — with authority to find material defects no one enumerated. The Architect is the **Architecture Partner**, and now derives operational/liveness invariants where load-bearing (bounded request-path IO, work that must not scale pathologically) as properties, never as a rule catalogue.
+- **Removed lingering "don't think beyond the ticket" framing** ("disposable session", "only that specification", "execution, not product redesign", "fresh session").
+
+### Added
+
+- **Lightweight native-first telemetry** (`scripts/lib/telemetry.py`): an append-only `.bombar/runtime/run.jsonl` event stream (run/session/obligation/gate/retry/blocker events) enriched with native structured output from the runtime (Claude Code stream-json: session id, tokens, cache, cost, duration, turns, status; Codex `--json` best-effort), plus a concise end-of-run summary. No context score, no kill threshold, no dashboards — capture first, interpret after real runs.
+- **Minimal shared state.** `progress.md` (compressed engineering memory for whoever continues) and mechanical session/runtime state under `.bombar/runtime/` (`run.jsonl`, `sessions.json`). `BLOCKERS.md` unchanged.
+- **Tiered gate cadence.** The per-obligation `gates` stay fast; an optional `execution.final_gates` runs the stronger integration/E2E/product-level tier once after the chain. The strong product-level judgment is the fresh Independent Engineering Reviewer.
+- **Runtime abstraction** (`adapters/CONTRACT.md`): start / resume-by-id / structured-result. Claude Code is the verified reference (id-addressed sessions, stream-json telemetry, empirically confirmed); Codex is a documented best-effort adapter (`resume --last`, `--json`) pending validation on an installed CLI.
+
 ## [0.3.0] — 2026-08-21
 
 Keep the harness thin and the sessions warm: stop paying a cold-start tax on retries, and let the reviewer that already reads the whole plan also judge how it's sliced.

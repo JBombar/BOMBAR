@@ -18,7 +18,7 @@ If acceptance changes after implementation to describe what was built, the proje
 
 ## Silent scope expansion
 
-“I noticed this adjacent improvement” is not authority. Builders either remain within the approved slice or file a change request.
+Wide engineering agency covers *how* to build the product, never *what the product is*. Changing an approved product decision, invariant, or acceptance criterion is not an engineering call — the Engineering Partner files a change request rather than deciding it alone.
 
 ## Always-on context landfill
 
@@ -30,7 +30,7 @@ In an agent-built system, stale canonical documents are worse than missing docum
 
 ## Fake independence
 
-A “Verifier” that receives the Builder transcript or reviews only the Builder's summary is anchored by the author. Independence requires the actual diff, frozen criteria, bounded context, and a fresh session.
+An “independent” reviewer that receives the Engineering Partner's transcript or reviews only its summary is anchored by the author. Independence requires the actual diff, frozen criteria, the real repository, and a fresh session — this is the one place continuity is deliberately *not* preserved.
 
 ## Infinite repair autonomy
 

@@ -24,9 +24,11 @@ head="$(git rev-parse HEAD)"
   printf -- '- Governed approval: `__development/bombar/APPROVAL.json`\n'
   printf -- '- Specifications: `__development/bombar/specs/`\n'
   printf -- '- Evidence: `__development/bombar/evidence/`\n'
+  printf -- '- Engineering memory: `__development/bombar/progress.md` (a claim to check, not authority)\n'
+  printf -- '- Run telemetry: `.bombar/runtime/run.jsonl`\n'
   printf '\nInspect the spine-computed diff with:\n\n```bash\ngit diff --stat %s..%s\ngit diff %s..%s\n```\n' "$baseline" "$head" "$baseline" "$head"
 } > .bombar/context/VERIFIER_SESSION.md
 
 bombar_log "Independent verification pack prepared."
 printf '\nStart a NEW, INDEPENDENT interactive review session with:\n\n  %s/.bombar/context/VERIFIER_SESSION.md\n\n' "$ROOT_DIR"
-printf '%s\n' 'The Verifier is not the Builder. Final semantic/live acceptance remains an owner + Architect decision.'
+printf '%s\n' 'The Independent Engineering Reviewer is a fresh context, not the Engineering Partner. Its question is whether this is coherent, production-quality software. Final semantic/live acceptance remains an owner + Architecture Partner decision.'

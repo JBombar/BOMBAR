@@ -41,7 +41,7 @@ Brownfield also requires:
 
 ## Sizing rule
 
-One specification equals one fresh session, one green repository state, and one reviewable commit. Split work when:
+One specification is one bounded obligation — one green repository state and one reviewable commit — sized as a coherent unit of work the continuing Engineering Partner completes before the next. Split work when:
 
 - it crosses unrelated components;
 - it needs more than one architectural hold point;

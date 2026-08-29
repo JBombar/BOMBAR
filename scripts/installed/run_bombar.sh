@@ -12,11 +12,20 @@ PROFILE=".bombar/project-profile.json"
 STATE_DIR=".bombar/state"
 LOG_DIR=".bombar/logs"
 CONTEXT_DIR=".bombar/context"
-mkdir -p "$STATE_DIR" "$LOG_DIR" "$CONTEXT_DIR"
+RUNTIME_DIR=".bombar/runtime"
+mkdir -p "$STATE_DIR" "$LOG_DIR" "$CONTEXT_DIR" "$RUNTIME_DIR"
 MAIN_LOG="$LOG_DIR/run_bombar.log"
+RUN_FILE="$RUNTIME_DIR/run.jsonl"
+SESSIONS_FILE="$RUNTIME_DIR/sessions.json"
+TELEMETRY=".bombar/lib/telemetry.py"
 
 log() { bombar_log "$*" | tee -a "$MAIN_LOG"; }
 die() { log "FATAL: $*"; exit 1; }
+
+# Telemetry is best-effort and never fatal to a run.
+tele() { "$py" "$TELEMETRY" event --run "$RUN_FILE" --kind "$1" --data "${2:-{}}" 2>/dev/null || true; }
+
+json_str() { "$py" -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$1"; }
 
 profile_value() {
   "$py" - "$PROFILE" "$1" <<'PY'
@@ -57,8 +66,9 @@ heartbeat_run() {
   wait "$pid"
 }
 
+# run_gates <logfile> <stage> [profile_key]  — profile_key defaults to "gates".
 run_gates() {
-  local logfile="$1" stage="$2" rc=0 index=0 command
+  local logfile="$1" stage="$2" key="${3:-gates}" rc=0 index=0 command
   : > "$logfile"
   while IFS= read -r -d '' command; do
     index=$((index+1))
@@ -72,9 +82,9 @@ run_gates() {
     if [ $? -eq 0 ]; then log "$stage gate $index PASS — $command"
     else log "$stage gate $index FAIL — $command"; rc=1
     fi
-  done < <("$py" - "$PROFILE" <<'PY'
+  done < <("$py" - "$PROFILE" "$key" <<'PY'
 import json, sys
-for command in json.load(open(sys.argv[1], encoding="utf-8"))["execution"]["gates"]:
+for command in json.load(open(sys.argv[1], encoding="utf-8"))["execution"].get(sys.argv[2]) or []:
     sys.stdout.buffer.write(command.encode() + b"\0")
 PY
 )
@@ -92,17 +102,29 @@ else: print(value)
 PY
 }
 
+# write_prompt <index> <attempt> <prior_log> <mode>
+#   mode: begin (first obligation of the run) | next (a later obligation, warm) | fix (retry, warm)
 write_prompt() {
-  local index="$1" attempt="$2" prior_log="${3:-}" mode="${4:-fresh}"
+  local index="$1" attempt="$2" prior_log="${3:-}" mode="${4:-next}"
   local sid title spec_path risk change_mode live_probe prompt_path
   sid="$(spec_field "$index" id)"; title="$(spec_field "$index" title)"; spec_path="$(spec_field "$index" path)"
   risk="$(spec_field "$index" risk)"; change_mode="$(spec_field "$index" change_mode)"; live_probe="$(spec_field "$index" requires_live_probe)"
   prompt_path="$CONTEXT_DIR/${sid}_ATTEMPT_${attempt}.md"
   {
-    if [ "$mode" = resume ]; then
-      printf '# Continue and fix — your prior attempt on this specification is in the working tree\n\n'
-      printf 'Your previous attempt left its changes in the working tree, and independent verification (the gate) then failed. If you retain context from an earlier turn of this session, use it — do NOT start over or rediscover the codebase. Diagnose the SPECIFIC failure below first: it may be a flaky or environmental issue (e.g. a test that timed out under machine load) rather than a logic bug, in which case the right fix may be to re-run, or to raise a too-tight limit, not to rebuild. Fix only what is actually wrong, then run the gate yourself to confirm green. The contract and assignment follow for reference.\n\n---\n\n'
-    fi
+    case "$mode" in
+      begin)
+        printf '# Begin work on this product — first implementation obligation\n\n'
+        printf 'This is the first obligation of the run. Orient yourself from the governed artifacts and `progress.md`, then engineer this obligation as the continuing engineer responsible for the whole product.\n\n---\n\n'
+        ;;
+      fix)
+        printf '# Continue and fix — your prior attempt on this obligation is in the working tree\n\n'
+        printf 'You already worked this obligation and the gate then failed. Use the context you retain — do NOT start over or rediscover the codebase. Diagnose the SPECIFIC failure below: it may be flaky/environmental (a timeout under load) rather than a logic bug, in which case re-running or raising a too-tight limit is the right fix, not a rebuild. Fix what is actually wrong, then run the gate yourself to confirm green. Contract and assignment follow for reference.\n\n---\n\n'
+        ;;
+      *)
+        printf '# Next implementation obligation — continuing on this product\n\n'
+        printf 'You have been engineering this product across previous obligations; keep your accumulated understanding. This is the next outstanding obligation. Check `progress.md` for anything a continuing engineer should know, then proceed.\n\n---\n\n'
+        ;;
+    esac
     cat .bombar/prompts/builder.md
     printf '\n\n## Generated assignment\n\n'
     printf -- '- Specification: `%s`\n' "$spec_path"
@@ -112,13 +134,8 @@ write_prompt() {
     printf -- '- Change mode: `%s`\n' "$change_mode"
     printf -- '- Live probe required for final acceptance: `%s`\n' "$live_probe"
     printf -- '- Evidence file required: `__development/bombar/evidence/%s_EVIDENCE.md`\n' "$sid"
-    if [ "$mode" = resume ]; then
-      printf -- '- Attempt: `%s` (continuing the same session — warm context)\n' "$attempt"
-    else
-      printf -- '- Attempt: `%s` (this is a fresh session)\n' "$attempt"
-    fi
     if [ -n "$prior_log" ] && [ -f "$prior_log" ]; then
-      printf '\n## Deterministic verification failure to fix\n\nThe following verification output is what failed. Diagnose the root cause; do not merely silence the checker.\n\n```text\n'
+      printf '\n## Deterministic gate failure to fix\n\nThe following gate output is what failed. Diagnose the root cause; do not merely silence the checker.\n\n```text\n'
       tail -n 180 "$prior_log"
       printf '\n```\n'
     fi
@@ -131,9 +148,9 @@ record_blocker() {
   {
     printf '\n## %s — %s blocked by the deterministic runner\n\n' "$(bombar_ts)" "$sid"
     printf '**What:** %s\n\n' "$reason"
-    printf '**Why:** The approved slice did not satisfy the runner after bounded fresh attempts.\n\n'
+    printf '**Why:** The approved obligation did not satisfy the gate after the configured attempts.\n\n'
     printf '**Tried:** See `%s`.\n\n' "$detail_log"
-    printf '**Suggested:** Return to an interactive Architect/owner session if the issue requires a scope, architecture, invariant, acceptance, or authorization change. Otherwise repair the implementation on this branch and rerun.\n'
+    printf '**Suggested:** Return to an interactive Architecture Partner/owner session if the issue requires a scope, architecture, invariant, acceptance, or authorization change. Otherwise repair the implementation on this branch and rerun.\n'
   } >> __development/bombar/BLOCKERS.md
 }
 
@@ -155,18 +172,40 @@ heartbeat="$(profile_value execution.heartbeat_seconds)"
 max_retries="$(profile_value execution.max_retries)"
 auto_commit="$(profile_value execution.auto_commit)"
 allow_live="$(profile_value execution.allow_live_actions_unattended)"
-[ "$allow_live" = false ] || die "BOMBAR v0.1 never permits live actions in unattended Builder sessions"
+[ "$allow_live" = false ] || die "BOMBAR never permits live actions in unattended Engineering Partner sessions"
 
 "$py" .bombar/lib/bombar.py specs --root "$ROOT_DIR" --require-approval > "$STATE_DIR/specs.json" || die "cannot load approved specifications"
 spec_count="$($py -c 'import json; print(len(json.load(open(".bombar/state/specs.json"))))')"
+
+# One Engineering Partner continues across all obligations. Reuse the partner id
+# from a prior run of this project if present (cross-run continuity); otherwise
+# mint one. A new partner is created only when continuation is impossible — never
+# because a spec completed, a subsystem changed, or context grew.
+if [ -f "$SESSIONS_FILE" ]; then
+  PARTNER_ID="$($py -c 'import json,sys; print(json.load(open(sys.argv[1])).get("partner_id",""))' "$SESSIONS_FILE" 2>/dev/null || echo "")"
+else
+  PARTNER_ID=""
+fi
+if [ -n "$PARTNER_ID" ]; then
+  session_started=1
+  log "Continuing Engineering Partner session $PARTNER_ID (from a prior run)"
+else
+  PARTNER_ID="$($py -c 'import uuid; print(uuid.uuid4())')"
+  session_started=0
+  "$py" -c 'import json,sys; open(sys.argv[1],"w").write(json.dumps({"partner_id":sys.argv[2],"runtime":sys.argv[3],"specs":[]},indent=2))' "$SESSIONS_FILE" "$PARTNER_ID" "$adapter_rel" 2>/dev/null || true
+  log "Engineering Partner session $PARTNER_ID (new)"
+  tele session.created "$(printf '{"session_id":%s,"runtime":%s}' "$(json_str "$PARTNER_ID")" "$(json_str "$adapter_rel")")"
+fi
+
+tele run.started "$(printf '{"specs":%d,"adapter":%s,"session_id":%s}' "$spec_count" "$(json_str "$adapter_rel")" "$(json_str "$PARTNER_ID")")"
 
 baseline_log="$LOG_DIR/baseline.gates.log"
 project_state="$(profile_value project.state 2>/dev/null || echo unknown)"
 done_count="$($py -c 'import json,sys; print(sum(1 for s in json.load(open(sys.argv[1])) if s.get("status")=="done"))' "$STATE_DIR/specs.json" 2>/dev/null || echo -1)"
 if [ "$project_state" = greenfield ] && [ "$done_count" -eq 0 ] 2>/dev/null; then
-  log "Greenfield first-bootstrap run (no slices completed yet): skipping the baseline gate check — the toolchain does not exist until the first slice builds it. Per-slice gates remain fully enforced."
+  log "Greenfield first-bootstrap run (no obligations completed yet): skipping the baseline gate check — the toolchain does not exist until the first obligation builds it. Per-obligation gates remain fully enforced."
 else
-  log "Running baseline gates before any Builder receives the repository"
+  log "Running baseline gates before the Engineering Partner receives the repository"
   run_gates "$baseline_log" baseline || die "baseline gates are red; fix or deliberately redesign the gate policy interactively"
 fi
 
@@ -193,27 +232,41 @@ PY
   fi
 
   log "START $sid — $title"
+  tele spec.started "$(printf '{"spec_id":%s,"title":%s}' "$(json_str "$sid")" "$(json_str "$title")")"
   slice_start=$(date +%s)
   pre_head="$(git rev-parse HEAD)"
   success=0
   last_log=""
   for ((attempt=0; attempt<=max_retries; attempt++)); do
     attempt_number=$((attempt+1))
-    # The first retry resumes the warm session (it already knows the codebase and
-    # its own prior work — a flake or a small fix is handled in minutes). The
-    # initial attempt and any further retries run fresh; the last fresh retry is the
-    # "fresh eyes" escalation for a genuinely wrong approach. Resume is best-effort:
-    # adapters that cannot continue a session just run the (self-contained) prompt.
-    if [ "$attempt" -eq 1 ]; then mode=resume; resume_env=1; else mode=fresh; resume_env=0; fi
+    # Continuity: the same Engineering Partner is resumed for every obligation and
+    # every retry. Only the very first invocation of the run creates the session.
+    if [ "$session_started" -eq 1 ]; then resume_env=1; else resume_env=0; fi
+    if [ "$attempt" -gt 0 ]; then mode=fix
+    elif [ "$resume_env" -eq 0 ]; then mode=begin
+    else mode=next
+    fi
+    resumed_bool=$([ "$resume_env" -eq 1 ] && echo true || echo false)
     prompt="$(write_prompt "$index" "$attempt_number" "$last_log" "$mode")"
     agent_log="$LOG_DIR/${sid}.attempt-${attempt_number}.agent.log"
     verification_log="$LOG_DIR/${sid}.attempt-${attempt_number}.verification.log"
-    if [ "$mode" = resume ]; then
-      log "$sid attempt $attempt_number/$((max_retries+1)) — resuming warm session via $adapter_rel"
+    if [ "$resume_env" -eq 1 ]; then
+      log "$sid attempt $attempt_number/$((max_retries+1)) — resuming Engineering Partner ($mode) via $adapter_rel"
     else
-      log "$sid attempt $attempt_number/$((max_retries+1)) — fresh agent via $adapter_rel"
+      log "$sid attempt $attempt_number/$((max_retries+1)) — starting Engineering Partner via $adapter_rel"
     fi
-    BOMBAR_UNATTENDED=1 BOMBAR_SPEC_ID="$sid" BOMBAR_RESUME="$resume_env" heartbeat_run "$sid agent" "$agent_log" "$heartbeat" "$adapter" "$prompt" || true
+    [ "$attempt" -eq 0 ] || tele retry "$(printf '{"spec_id":%s,"attempt":%d}' "$(json_str "$sid")" "$attempt_number")"
+
+    turn_start=$(date +%s)
+    BOMBAR_UNATTENDED=1 BOMBAR_SPEC_ID="$sid" BOMBAR_SESSION_ID="$PARTNER_ID" BOMBAR_RESUME="$resume_env" \
+      heartbeat_run "$sid agent" "$agent_log" "$heartbeat" "$adapter" "$prompt" || true
+    turn_secs=$(( $(date +%s) - turn_start ))
+    session_started=1  # from now on we always resume this partner
+
+    native_json="$("$py" "$TELEMETRY" native "$agent_log" 2>/dev/null || echo '{}')"
+    [ -n "$native_json" ] || native_json='{}'
+    tele agent.turn "$(printf '{"spec_id":%s,"attempt":%d,"mode":%s,"resumed":%s,"duration_s":%d,"native":%s}' \
+      "$(json_str "$sid")" "$attempt_number" "$(json_str "$mode")" "$resumed_bool" "$turn_secs" "$native_json")"
 
     if [ "$(git rev-parse HEAD)" = "$pre_head" ] && [ -z "$(git status --porcelain)" ]; then
       printf 'NO-OP: the agent produced no commit and no working-tree change.\n' > "$verification_log"
@@ -222,24 +275,24 @@ PY
       continue
     fi
 
-    # Scope / protected-path enforcement removed on purpose: builders are trusted,
-    # and an otherwise-green build is never aborted over a touched path. The gate
-    # plus the approval-digest integrity check remain the real quality bar.
-    printf '# Scope verification\nscope/protected-path enforcement disabled; builders are trusted.\n' > "$verification_log"
+    # Scope / protected-path enforcement is intentionally not a hard abort: the
+    # Engineering Partner is trusted to touch technically necessary paths. Governed
+    # product truth is still protected by the approval digest (checked at preflight
+    # and mark-done); an otherwise-green build is never aborted over a touched path.
+    printf '# Scope\nEngineering Partner is trusted to touch necessary paths; product truth stays protected by the approval digest.\n' > "$verification_log"
 
     gate_log="$LOG_DIR/${sid}.attempt-${attempt_number}.gates.log"
+    gate_start=$(date +%s)
     if ! run_gates "$gate_log" "$sid"; then
+      gate_secs=$(( $(date +%s) - gate_start ))
+      tele gate.completed "$(printf '{"spec_id":%s,"stage":"per-obligation","result":"fail","duration_s":%d}' "$(json_str "$sid")" "$gate_secs")"
       cat "$gate_log" >> "$verification_log"
       log "$sid gates FAILED"
       last_log="$verification_log"
       continue
     fi
-
-    evidence="__development/bombar/evidence/${sid}_EVIDENCE.md"
-    if [ ! -s "$evidence" ]; then
-      printf '\nNOTE: evidence file %s is missing/empty — proceeding anyway; evidence never blocks a green build.\n' "$evidence" >> "$verification_log"
-      log "$sid evidence missing — proceeding (non-blocking)"
-    fi
+    gate_secs=$(( $(date +%s) - gate_start ))
+    tele gate.completed "$(printf '{"spec_id":%s,"stage":"per-obligation","result":"pass","duration_s":%d}' "$(json_str "$sid")" "$gate_secs")"
 
     if [ "$auto_commit" = true ] && [ -n "$(git status --porcelain)" ]; then
       git add -A
@@ -259,18 +312,39 @@ PY
     "$py" .bombar/lib/bombar.py mark-done "$sid" --root "$ROOT_DIR" >> "$verification_log" 2>&1 || {
       log "$sid evidence schema FAILED"; last_log="$verification_log"; continue;
     }
-    log "DONE $sid in $(fmt_hms $(( $(date +%s) - slice_start ))) — $(git log -1 --oneline)"
+    slice_secs=$(( $(date +%s) - slice_start ))
+    log "DONE $sid in $(fmt_hms "$slice_secs") — $(git log -1 --oneline)"
+    tele spec.completed "$(printf '{"spec_id":%s,"duration_s":%d,"commit":%s}' "$(json_str "$sid")" "$slice_secs" "$(json_str "$(git rev-parse --short HEAD)")")"
     "$py" .bombar/lib/bombar.py specs --root "$ROOT_DIR" --require-approval > "$STATE_DIR/specs.json" || die "cannot refresh specification status"
     success=1
     break
   done
 
   if [ "$success" -ne 1 ]; then
-    record_blocker "$sid" "verification remained red after $((max_retries+1)) attempt(s) (warm resume + fresh)" "$last_log"
+    record_blocker "$sid" "gate remained red after $((max_retries+1)) attempt(s)" "$last_log"
+    tele blocker.raised "$(printf '{"spec_id":%s}' "$(json_str "$sid")")"
     log "BLOCKED $sid — work preserved; chain halted"
+    tele run.completed "$(printf '{"specs_done":%d,"halted":true}' "$index")"
+    "$py" "$TELEMETRY" summary --run "$RUN_FILE" 2>/dev/null | tee -a "$MAIN_LOG" || true
     exit 1
   fi
 done
 
-log "All approved implementation specifications completed — $spec_count spec(s) in $(fmt_hms $(( $(date +%s) - run_start )))."
-log "Next: bash .bombar/prepare-verification.sh"
+# Optional stronger final tier: integration/E2E/product-level gates, run once after
+# the whole chain, when the profile defines execution.final_gates.
+if "$py" -c 'import json,sys; sys.exit(0 if (json.load(open(".bombar/project-profile.json"))["execution"].get("final_gates")) else 1)' 2>/dev/null; then
+  log "Running final gates (product-level tier)"
+  final_log="$LOG_DIR/final.gates.log"
+  fg_start=$(date +%s)
+  if run_gates "$final_log" final final_gates; then
+    tele final_gates.completed "$(printf '{"result":"pass","duration_s":%d}' "$(( $(date +%s) - fg_start ))")"
+  else
+    tele final_gates.completed "$(printf '{"result":"fail","duration_s":%d}' "$(( $(date +%s) - fg_start ))")"
+    log "Final gates FAILED — review $final_log before independent review."
+  fi
+fi
+
+log "All approved implementation obligations completed — $spec_count in $(fmt_hms $(( $(date +%s) - run_start )))."
+tele run.completed "$(printf '{"specs_done":%d,"halted":false}' "$spec_count")"
+"$py" "$TELEMETRY" summary --run "$RUN_FILE" 2>/dev/null | tee -a "$MAIN_LOG" || true
+log "Next: bash .bombar/prepare-verification.sh   (fresh Independent Engineering Reviewer)"

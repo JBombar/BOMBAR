@@ -19,9 +19,9 @@ Dependency-ordered bounded specifications
         ↓
 Content-addressed owner approval
         ↓
-Fresh Builder sessions under deterministic gates
+One continuing Engineering Partner under deterministic gates
         ↓
-Independent verification
+Fresh independent engineering review
         ↓
 Authorized world-boundary acceptance
         ↓
@@ -40,7 +40,7 @@ This preserves agility without making direction implicit.
 
 ## Compile vision into rails
 
-Builders should not need the owner's accumulated intuition. The interactive Architect compiles the relevant part of that intuition into:
+The Engineering Partner should not need the owner's accumulated intuition. The Architecture Partner compiles the relevant part of that intuition into:
 
 - explicit outcomes and non-goals;
 - architecture boundaries;
@@ -50,7 +50,7 @@ Builders should not need the owner's accumulated intuition. The interactive Arch
 - tests and world sensors;
 - stop conditions.
 
-The builder is interchangeable because the durable intelligence lives in the structure around it.
+The durable product intelligence lives in the structure, so the work survives a change of engineer — but within that structure the Engineering Partner's own engineering intelligence is trusted and relied upon, not designed around.
 
 ## Three kinds of correctness
 
@@ -76,4 +76,4 @@ When an approved specification cannot be completed without new authority or chan
 
 ## Postmortems grow the surface
 
-Every escaped defect should add a durable prevention mechanism proportional to the lesson: an invariant, test, negative probe, vital sign, scope guard, or clearer artifact. Fixing code without strengthening the method guarantees recurrence across disposable agents.
+Every escaped defect should add a durable prevention mechanism proportional to the lesson — but prefer the smallest one that works, and prefer strengthening engineering judgment and independent review over encoding ordinary competence as an ever-growing rule catalogue. Sometimes the right fix is an invariant, test, negative probe, or clearer artifact; sometimes it is better framing that lets the Engineering Partner catch the class itself. Fixing code without strengthening the method guarantees recurrence.

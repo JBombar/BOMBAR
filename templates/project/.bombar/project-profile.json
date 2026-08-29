@@ -17,6 +17,7 @@
     "gates": [
       "BOMBAR_CONFIGURE_A_REAL_GATE"
     ],
+    "final_gates": [],
     "protected_paths": []
   },
   "approval": {

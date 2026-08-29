@@ -21,13 +21,13 @@ The interactive Architect discovers repository facts, turns ambiguous intent int
 
 After approval, automation performs the long mechanical work:
 
-- selecting dependency-ready slices;
-- starting fresh Builder contexts;
-- running gates;
-- checking scope and protected paths;
-- requiring evidence and commits;
+- working through obligations in dependency order;
+- continuing one Engineering Partner across them (fresh only when continuation is impossible);
+- running gates and landing green commits;
+- protecting governed product truth via the approval digest;
+- recording evidence, progress memory, and telemetry;
 - preserving resumability;
-- assembling independent review material.
+- assembling fresh, independent review material.
 
 Automation does not approve the product, reinterpret the acceptance contract, authorize live actions, or decide a new architecture.
 

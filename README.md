@@ -62,9 +62,9 @@ bash .bombar/prepare-architect.sh
 # 3. Freeze the approved plan
 bash .bombar/validate-plan.sh --freeze --approved-by "Your Name"
 
-# 4. Run autonomous Builder sessions
+# 4. Run the autonomous Engineering Partner
 bash .bombar/run_bombar.sh
-# ...each slice executes, gates pass, evidence is written...
+# ...one continuing engineer works the obligations; gates pass; telemetry is captured...
 
 # 5. Verify independently
 bash .bombar/prepare-verification.sh
@@ -82,26 +82,26 @@ See [examples/](examples/) for filled, sanitized greenfield and brownfield walkt
 
 ```text
 INTERACTIVE                              AUTONOMOUS
-Owner <-> Architect                     Fresh Builder per specification
-  discover intent                         implement bounded scope
-  audit the terrain                       run project gates
-  decide architecture                     produce evidence
-  freeze acceptance                       commit and stop
-  write specifications
+Owner <-> Architecture Partner           One continuing Engineering Partner
+  discover intent                          engineer the product, obligation by obligation
+  audit the terrain                        run project gates
+  decide architecture                      keep engineering memory + telemetry
+  freeze acceptance                        commit each green obligation
+  write obligations
           |                                      |
           +---------- approved digest -----------+
                                                  |
 INTERACTIVE / INDEPENDENT                        v
-Owner + Architect <--- verification pack <--- Verifier
+Owner + Architecture Partner <--- review <--- fresh Independent Engineering Reviewer
 ```
 
 <p align="center">
-  <img src="assets/diagram-boundary.svg" alt="Interactive Owner and Architect steps freeze into an approved digest that bounds autonomous Builder steps, which hand a verification pack back to an independent Verifier and the Owner and Architect" width="820">
+  <img src="assets/diagram-boundary.svg" alt="Interactive Owner and Architecture Partner steps freeze into an approved digest that bounds an autonomous continuing Engineering Partner, which hands a review pack back to a fresh Independent Engineering Reviewer and the Owner and Architecture Partner" width="820">
 </p>
 
 The governing rule is simple:
 
-> Human and Architect establish intent. Autonomous Builders execute compiled intent.
+> Human and Architecture Partner establish the product reality that must be true. A trusted, continuing Engineering Partner autonomously makes it true; a fresh Independent Engineering Reviewer challenges the result.
 
 ## Five-minute orientation
 
@@ -127,10 +127,10 @@ bash .bombar/validate-plan.sh
 # Explicit owner act: freeze their exact content.
 bash .bombar/validate-plan.sh --freeze --approved-by "Your Name"
 
-# Start fresh, bounded Builder sessions.
+# Run the continuing Engineering Partner across the obligations.
 bash .bombar/run_bombar.sh
 
-# Assemble a clean pack for an independent review session.
+# Assemble a clean pack for a fresh, independent engineering review.
 bash .bombar/prepare-verification.sh
 ```
 
@@ -199,7 +199,7 @@ Gate-correct, intent-correct, and world-correct are three different claims. All 
 bin/          operator entrypoint
 scripts/      deterministic control machinery
 templates/    artifacts installed into projects
-prompts/      Architect, Planner, Builder, Verifier, and Auditor roles
+prompts/      Architecture Partner, Engineering Partner, Independent Engineering Reviewer, Spec Auditor, Planner, Auditor roles
 schemas/      machine-readable contracts
 docs/         method and adoption guides
 examples/     filled greenfield and brownfield examples

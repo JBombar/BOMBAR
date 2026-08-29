@@ -6,7 +6,7 @@ BOMBAR is built on six beliefs:
 
 1. **Product judgment is a conversation.** The owner and Architect must establish shared understanding interactively.
 2. **Intent can be compiled.** Vision becomes acceptance, architecture, invariants, work orders, tests, and stop conditions.
-3. **Builders should be replaceable.** Durable intelligence belongs in the repository and control system, not one model's hidden context.
+3. **The work must survive a change of engineer, without wasting the engineer.** Durable product intelligence lives in the repository and control system, so no single session is a point of failure — and *within* those rails a capable engineering agent is trusted with real responsibility and continuity, because its judgment and accumulated context are assets, not risks to design around.
 4. **Autonomy belongs after approval.** Long implementation work can run unattended once the relevant judgment is complete and frozen.
 5. **Verification must be independent and outside-in.** Tests, ledgers, and agent summaries cannot certify every real-world claim.
 6. **The method must learn from scars.** Every escaped defect should strengthen the permanent rails for every future agent.
