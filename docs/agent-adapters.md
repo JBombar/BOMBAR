@@ -18,7 +18,7 @@ It must:
 6. return the process exit code;
 7. never use conversation continuation/resume state.
 
-The deterministic runner does not trust exit code alone; it independently checks repository changes, scope, gates, evidence, and commit state.
+The deterministic runner does not trust exit code alone; it independently checks repository changes, gates, and commit state, and records telemetry.
 
 ## Selection
 

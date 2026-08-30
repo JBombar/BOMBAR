@@ -1,6 +1,6 @@
 # Specification contract
 
-A BOMBAR specification is simultaneously a human work order and a machine-validated execution unit.
+A BOMBAR specification is the **next required product obligation** in a continuing engineering mission. It is simultaneously a human work order and a machine-validated unit — but it is *not* the boundary of what the Engineering Partner may think about or touch. Specs preserve obligations; the Engineering Partner engineers the product.
 
 ## Metadata
 
@@ -14,30 +14,26 @@ The Markdown file begins with embedded JSON:
   "depends_on": ["BILLING-01"],
   "risk": "high",
   "change_mode": "brownfield",
-  "touchable_paths": ["src/billing/**", "tests/billing/**"],
-  "protected_paths": ["src/billing/ledger/**"],
   "requires_live_probe": true,
   "acceptance_ids": ["AC-BILL-4", "AC-SAFE-2"]
 }
 -->
 ```
 
-JSON was chosen for the initial release because Python's standard library can validate it identically on every supported host. The surrounding document remains ordinary Markdown.
+The metadata carries only what the deterministic runner needs to sequence and account for obligations: identity, dependencies, risk, change mode, whether a live probe is required, and which acceptance criteria the obligation covers. It deliberately does **not** declare which implementation files may be touched. JSON was chosen because Python's standard library validates it identically on every supported host; the surrounding document is ordinary Markdown.
 
 ## Required sections
 
-- Outcome
-- Current State
-- Scope
-- Out of Scope
-- Acceptance Criteria
-- Verification
-- Definition of Done
+- Outcome — the product capability that must become true (a user-observable result).
+- Acceptance criteria — the AC-IDs this obligation covers.
+- Verification — how the outcome is meaningfully verified, proportional to risk and the behavior affected.
 
 Brownfield also requires:
 
 - Compatibility and Non-disruption
 - Rollback
+
+Optional context (verified references, relevant invariants, deferrals to later obligations) is welcome where it is load-bearing; it is not a required ritual.
 
 ## Sizing rule
 
@@ -53,8 +49,10 @@ Do not split into horizontal layers that produce no usable behavior unless the f
 
 ## Exact references and drift
 
-Planning should cite real files and symbols, but Builders must re-verify them. A reference is evidence of planning depth, not permission to force today's code into yesterday's line number.
+Planning may cite real files and symbols, but the Engineering Partner re-verifies them at execution time. A reference is evidence of planning depth, not permission to force today's code into yesterday's line number.
 
-## Touchable paths
+## What a spec constrains, and what it does not
 
-Touchable paths are a mechanical epistemic boundary. If correct implementation requires another path, the Builder does not widen the list—it files a change request. The Architect decides whether the plan was incomplete.
+A spec constrains **product truth**: the outcome, the acceptance it must satisfy, the invariants and architectural decisions it must respect, and (for brownfield) what must be preserved. Those are owner/Architecture-Partner decisions; the Engineering Partner does not silently rewrite them — it raises a blocker.
+
+A spec does **not** constrain **engineering agency**: which files or modules to touch, what to refactor, what surrounding technical work competent implementation requires. If good engineering of the obligation needs a shared helper, a new module, a migration, or a fix in an adjacent area consistent with approved product intent, the Engineering Partner just does it. Protect product truth; do not pre-authorize implementation file-by-file.

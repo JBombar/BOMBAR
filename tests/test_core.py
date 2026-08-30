@@ -15,11 +15,6 @@ SPEC.loader.exec_module(bombar)
 
 
 class BombarCoreTests(unittest.TestCase):
-    def test_path_match_directory_glob(self) -> None:
-        self.assertTrue(bombar.path_matches("src/a/b.py", "src/**"))
-        self.assertTrue(bombar.path_matches("src", "src/**"))
-        self.assertFalse(bombar.path_matches("tests/a.py", "src/**"))
-
     def test_topological_order(self) -> None:
         specs = [
             {"id": "S02", "depends_on": ["S01"]},
@@ -45,6 +40,30 @@ class BombarCoreTests(unittest.TestCase):
             parsed = bombar.parse_spec(path)
             self.assertEqual(parsed["id"], "S01")
             self.assertEqual(len(parsed["_digest"]), 64)
+
+    def test_specs_are_obligations_not_bounded_executors(self) -> None:
+        # v0.4.1 guardrail: the machinery that manufactures specs must not teach the
+        # Engineering Partner to behave like a narrowly scoped task executor.
+        self.assertNotIn("touchable_paths", bombar.REQUIRED_META)
+        self.assertNotIn("protected_paths", bombar.REQUIRED_META)
+        self.assertNotIn("scope", bombar.REQUIRED_SPEC_SECTIONS)
+        self.assertNotIn("out of scope", bombar.REQUIRED_SPEC_SECTIONS)
+        self.assertFalse(hasattr(bombar, "check_scope"))
+        self.assertFalse(hasattr(bombar, "path_matches"))
+
+        schema = json.loads((ROOT / "schemas/specification.schema.json").read_text(encoding="utf-8"))
+        for field in ("touchable_paths", "protected_paths"):
+            self.assertNotIn(field, schema["required"])
+            self.assertNotIn(field, schema["properties"])
+
+        template = (ROOT / "templates/project/__development/bombar/specs/S01_REPLACE_ME.md").read_text(encoding="utf-8")
+        low = template.lower()
+        for banned in ("touchable_paths", "protected_paths", "implement exactly", "implement only",
+                       "commit once green", "and stop.", "disposable"):
+            self.assertNotIn(banned, low, f"spec template still teaches bounded-executor semantics: {banned!r}")
+        # It must positively frame the spec as the next obligation with wide agency.
+        self.assertIn("next product obligation", low)
+        self.assertIn("wide engineering agency", low)
 
     def test_approval_detects_drift(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

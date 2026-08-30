@@ -157,14 +157,14 @@ If you are evaluating whether the method itself transferred, use the [methodolog
 
 `bombar init` adds a self-contained `.bombar/` control kit and a visible `__development/bombar/` decision trail to the target repository. The kit contains:
 
-- an interactive Architect initialization prompt;
+- an interactive Architecture Partner initialization prompt;
 - product, architecture, invariant, acceptance, and ADR templates;
-- a machine-validated Markdown specification contract;
+- a machine-validated Markdown obligation contract;
 - a project profile containing gates and agent-adapter selection;
 - approval digests that lock autonomous execution to reviewed intent;
-- a resumable fresh-session-per-spec runner;
-- scope, protected-path, no-op, evidence, and gate checks;
-- an independent verification-pack generator.
+- a continuing-Engineering-Partner runner with native telemetry;
+- baseline, gate, commit, and completion checks;
+- an independent engineering-review-pack generator.
 
 ## Greenfield and brownfield
 
@@ -174,15 +174,15 @@ Brownfield specifications require compatibility, non-disruption, rollback, and l
 
 ## Agent neutrality
 
-The contract is provider-neutral. An adapter has one responsibility: receive a prompt-file path and start one fresh coding-agent session. BOMBAR ships example adapters and a fake adapter for its own tests. Configure the adapter explicitly; the runner never guesses credentials or silently chooses a provider.
+The contract is provider-neutral. An adapter has one responsibility: receive a prompt-file path and start — or resume, by session id — one coding-agent session (see `adapters/CONTRACT.md`). BOMBAR ships a verified Claude Code adapter, a best-effort Codex adapter, and a fake adapter for its own tests. Configure the adapter explicitly; the runner never guesses credentials or silently chooses a provider.
 
 ## What BOMBAR guarantees
 
-- ✅ **No silent redesign** — agents execute approved specs, nothing else.
+- ✅ **No silent redesign** — the Engineering Partner engineers the product freely but never rewrites approved product truth.
+- ✅ **Product truth is locked** — a content-addressed approval digest means governed intent cannot change without a new owner freeze.
 - ✅ **Deterministic gates** — green means "verified against contract," not "probably fine."
-- ✅ **Evidence for every slice** — what changed, why, and how it's proven.
-- ✅ **Scope enforcement** — protected paths cannot be touched without owner approval.
-- ✅ **Fresh isolation** — one session per slice, no conversational state bleeding.
+- ✅ **Evidence and telemetry** — what changed, why, and objective run facts (`.bombar/runtime/run.jsonl`).
+- ✅ **Continuity with independence** — one continuing Engineering Partner builds the product; a fresh Independent Engineering Reviewer challenges the result.
 
 ## What requires your judgment
 

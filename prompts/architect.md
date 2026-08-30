@@ -101,7 +101,7 @@ Before declaring the plan ready:
 - `__development/bombar/05_IMPLEMENTATION_PLAN.md`
 - `__development/bombar/JOURNEY_MAP.md`
 - ADRs when decisions warrant them
-- one implementation specification per bounded slice
+- one specification per bounded obligation
 - a real `.bombar/project-profile.json`
 
 The owner must feel understood before the Engineering Partner is authorized. The artifact set is the compiled shared understanding—not a substitute for achieving it.

@@ -18,7 +18,7 @@
     },
     "execution": {
       "type": "object",
-      "required": ["spec_dir", "evidence_dir", "agent_adapter", "max_retries", "heartbeat_seconds", "auto_commit", "require_non_default_branch", "allow_live_actions_unattended", "gates", "protected_paths"],
+      "required": ["spec_dir", "evidence_dir", "agent_adapter", "max_retries", "heartbeat_seconds", "auto_commit", "require_non_default_branch", "allow_live_actions_unattended", "gates"],
       "properties": {
         "spec_dir": {"type": "string"},
         "evidence_dir": {"type": "string"},
@@ -29,7 +29,7 @@
         "require_non_default_branch": {"type": "boolean"},
         "allow_live_actions_unattended": {"const": false},
         "gates": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
-        "protected_paths": {"type": "array", "items": {"type": "string"}}
+        "final_gates": {"type": "array", "items": {"type": "string", "minLength": 1}}
       },
       "additionalProperties": false
     },

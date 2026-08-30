@@ -2,21 +2,21 @@
 flowchart LR
     subgraph I["INTERACTIVE"]
         direction TB
-        A["Owner + Architect"] --> B["discover intent"]
+        A["Owner + Architecture Partner"] --> B["discover intent"]
         B --> C["audit the terrain"]
         C --> D["decide architecture"]
         D --> E["freeze acceptance"]
-        E --> F["write specifications"]
+        E --> F["write obligations"]
     end
 
     subgraph A2["AUTONOMOUS"]
         direction TB
-        G["Fresh Builder per spec"] --> H["implement bounded scope"]
-        H --> I2["run project gates"]
-        I2 --> J["produce evidence"]
-        J --> K["commit and stop"]
+        G["One continuing Engineering Partner"] --> H["engineer the product, obligation by obligation"]
+        H --> I2["run gates + capture telemetry"]
+        I2 --> J["commit each green obligation"]
+        J --> K["keep engineering memory"]
     end
 
     F -- "approved digest" --> G
-    K -- "verification pack" --> L["Verifier"]
-    L --> M["Owner + Architect (independent review)"]
+    K -- "review pack" --> L["fresh Independent Engineering Reviewer"]
+    L --> M["Owner + Architecture Partner (acceptance)"]

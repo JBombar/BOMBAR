@@ -88,11 +88,11 @@ The installed files under `.bombar/` and `__development/bombar/` are the complet
 
 ## Architecture decision summary
 
-One fake adapter acts inside one bounded slice; the deterministic runner remains arbiter.
+One fake adapter produces the obligation; the deterministic runner remains arbiter.
 
 ## Components and responsibilities
 
-The adapter writes implementation/evidence; the runner checks scope, gates, commit, and state.
+The adapter writes implementation/evidence; the runner runs gates and owns commit and completion state.
 
 ## Data and control flow
 
@@ -214,8 +214,6 @@ for path in spec_dir.glob("*.md"):
   "depends_on": [],
   "risk": "low",
   "change_mode": "greenfield",
-  "touchable_paths": ["result.txt"],
-  "protected_paths": [],
   "requires_live_probe": false,
   "acceptance_ids": ["AC-FIXTURE-1"]
 }
@@ -225,33 +223,13 @@ for path in spec_dir.glob("*.md"):
 
 Create result.txt containing `implemented FIXTURE-01` and a conforming evidence file.
 
-## Current State
-
-No result file or evidence exists before execution.
-
-## Scope
-
-The result file and its slice evidence only.
-
-## Out of Scope
-
-All source, control, CI, network, provider, and deployment behavior.
-
-## Architecture and Invariants
-
-The fake adapter writes; the runner verifies and owns completion.
-
-## Acceptance Criteria
+## Acceptance criteria
 
 AC-FIXTURE-1 is satisfied when all deterministic artifacts are observed.
 
 ## Verification
 
-The configured Python gate validates exact result content; runner checks evidence headings and commit.
-
-## Definition of Done
-
-Scope and gate pass, evidence exists, one commit is created, and the completion marker is valid.
+The configured Python gate validates exact result content; the runner checks the commit and completion marker.
 """,
     encoding="utf-8",
 )

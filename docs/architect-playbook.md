@@ -35,7 +35,7 @@ Red-team before specifications when the design touches production mutation, mone
 
 ## When a slice is too large
 
-Split when a fresh Builder cannot hold the relevant context, gates cannot be honestly green at the end, the diff would hide multiple review subjects, or the slice contains separate risk decisions. Do not split merely to maximize session count.
+Split when one obligation cannot be a coherent unit of work, gates cannot be honestly green at the end, the diff would hide multiple review subjects, or the obligation contains separate risk decisions. Do not split merely to maximize obligation count — the continuing Engineering Partner carries context across them, so over-splitting only adds ceremony.
 
 ## When external verification is mandatory
 

@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
-import fnmatch
 import hashlib
 import json
 import os
@@ -36,14 +35,14 @@ REQUIRED_ARTIFACTS = (
     DEV_DIR / "05_IMPLEMENTATION_PLAN.md",
     DEV_DIR / "specs/README.md",
 )
+# A specification states the next product obligation: what must become true, how we
+# know (acceptance), and how it is meaningfully verified. It deliberately does NOT
+# declare which implementation files the Engineering Partner may touch — engineering
+# agency inside approved product truth is not pre-authorized file-by-file.
 REQUIRED_SPEC_SECTIONS = (
     "outcome",
-    "current state",
-    "scope",
-    "out of scope",
     "acceptance criteria",
     "verification",
-    "definition of done",
 )
 REQUIRED_META = (
     "id",
@@ -51,8 +50,6 @@ REQUIRED_META = (
     "depends_on",
     "risk",
     "change_mode",
-    "touchable_paths",
-    "protected_paths",
     "requires_live_probe",
 )
 PLACEHOLDER_PATTERNS = (
@@ -147,10 +144,6 @@ def load_profile(root: pathlib.Path) -> dict[str, Any]:
             errors.append("execution.heartbeat_seconds must be an integer of at least 5")
         if execution.get("allow_live_actions_unattended") is not False:
             errors.append("execution.allow_live_actions_unattended must be false in BOMBAR v0.1")
-        if not isinstance(execution.get("protected_paths"), list) or not all(
-            isinstance(value, str) for value in execution.get("protected_paths", [])
-        ):
-            errors.append("execution.protected_paths must be a list of strings")
     if errors:
         raise BombarError("invalid project profile:\n  - " + "\n  - ".join(errors))
     return profile
@@ -275,9 +268,8 @@ def validate_artifacts(root: pathlib.Path) -> tuple[dict[str, Any], list[dict[st
             errors.append(f"{rel}: risk must be low, medium, high, or critical")
         if spec.get("change_mode") not in {"greenfield", "brownfield"}:
             errors.append(f"{rel}: change_mode must be greenfield or brownfield")
-        for key in ("depends_on", "touchable_paths", "protected_paths"):
-            if not isinstance(spec.get(key), list) or not all(isinstance(v, str) for v in spec.get(key, [])):
-                errors.append(f"{rel}: {key} must be a list of strings")
+        if not isinstance(spec.get("depends_on"), list) or not all(isinstance(v, str) for v in spec.get("depends_on", [])):
+            errors.append(f"{rel}: depends_on must be a list of strings")
         if not isinstance(spec.get("requires_live_probe"), bool):
             errors.append(f"{rel}: requires_live_probe must be boolean")
         present = headings(str(spec.get("_text", "")))
@@ -368,34 +360,6 @@ def verify_approval(root: pathlib.Path, profile: dict[str, Any], specs: list[dic
     return approval
 
 
-def path_matches(path: str, pattern: str) -> bool:
-    clean_path = path.replace("\\", "/").lstrip("./")
-    clean_pattern = pattern.replace("\\", "/").lstrip("./")
-    if clean_pattern.endswith("/**"):
-        prefix = clean_pattern[:-3].rstrip("/")
-        return clean_path == prefix or clean_path.startswith(prefix + "/")
-    return fnmatch.fnmatchcase(clean_path, clean_pattern)
-
-
-def changed_paths(root: pathlib.Path, base: str) -> list[str]:
-    committed = run_git(root, "diff", "--name-only", f"{base}..HEAD", check=False).splitlines()
-    unstaged = run_git(root, "diff", "--name-only", check=False).splitlines()
-    staged = run_git(root, "diff", "--name-only", "--cached", check=False).splitlines()
-    untracked = run_git(root, "ls-files", "--others", "--exclude-standard", check=False).splitlines()
-    all_lines = committed + unstaged + staged + untracked
-    return sorted(set(line.replace("\\", "/").strip() for line in all_lines if line.strip()))
-
-
-def check_scope(root: pathlib.Path, spec_id: str, base: str) -> None:
-    # Scope / protected-path enforcement removed on purpose. Builders are trusted
-    # to implement the approved spec, and touching a sensible, conventional path
-    # (a shared helper, a script, a config file) is welcome — not a failure. An
-    # otherwise-green build is never aborted over a touched path. The real quality
-    # bar is the configured gate plus the approval-digest integrity check, which
-    # still protects the governed BOMBAR artifacts.
-    return None
-
-
 def marker_path(root: pathlib.Path, spec_id: str) -> pathlib.Path:
     return root / CONTROL_DIR / "state" / f"{spec_id}.done.json"
 
@@ -423,7 +387,7 @@ def command_validate(args: argparse.Namespace) -> None:
         approval = make_approval(root, args.approved_by.strip())
         write_json(root / APPROVAL_PATH, approval)
         print(f"Approval frozen by {approval['approved_by']} over {len(approval['artifacts'])} artifacts.")
-        print(f"Commit {APPROVAL_PATH.as_posix()} before running Builders.")
+        print(f"Commit {APPROVAL_PATH.as_posix()} before running the Engineering Partner.")
     elif (root / APPROVAL_PATH).is_file():
         verify_approval(root, profile, specs)
         print("Approval digest valid: governed artifacts are unchanged.")
@@ -458,12 +422,6 @@ def command_approval(args: argparse.Namespace) -> None:
     profile, specs = validate_artifacts(root)
     approval = verify_approval(root, profile, specs)
     print(json.dumps(approval, ensure_ascii=False))
-
-
-def command_scope(args: argparse.Namespace) -> None:
-    root = project_root(args.root)
-    check_scope(root, args.spec_id, args.base)
-    print("scope valid")
 
 
 def command_status(args: argparse.Namespace) -> None:
@@ -568,12 +526,6 @@ def build_parser() -> argparse.ArgumentParser:
     approval = sub.add_parser("approval")
     approval.add_argument("--root")
     approval.set_defaults(func=command_approval)
-
-    scope = sub.add_parser("check-scope")
-    scope.add_argument("spec_id")
-    scope.add_argument("base")
-    scope.add_argument("--root")
-    scope.set_defaults(func=command_scope)
 
     status = sub.add_parser("status")
     status.add_argument("--root")

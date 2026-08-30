@@ -46,7 +46,7 @@ The owner approves the resulting behavior and architecture. The first slice is a
 The owner returns when:
 
 - the Architect needs a genuine business or authority decision;
-- a Builder files a change request outside approved scope;
+- the Engineering Partner files a change request for a genuine product decision;
 - a high-risk hold point is reached;
 - independent verification finds an intent ambiguity;
 - a live or paid action requires authorization;

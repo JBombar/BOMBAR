@@ -2,6 +2,29 @@
 
 All notable changes to BOMBAR are documented here.
 
+## [0.4.1] — 2026-08-30
+
+Semantic migration. v0.4.0 moved the philosophy into the prompts and runtime, but the machinery that *manufactures* specifications still taught the old bounded-executor model — so a well-behaved Architecture Partner, reading the templates/schema/validator "so the artifacts pass," re-instantiated exactly the narrow-executor semantics we set out to remove. This deletes those remnants. It is a net removal (−247/+116), not a new layer.
+
+### Removed — obsolete bounded-executor machinery
+
+- **Spec metadata `touchable_paths` / `protected_paths`.** A specification no longer pre-authorizes which implementation files the Engineering Partner may touch. Dropped from the schema, the validator (`REQUIRED_META`), the spec template, the examples, the planner, and the docs. Engineering agency inside approved product truth is not granted file-by-file.
+- **Profile `execution.protected_paths` and the scope-enforcement subsystem** (`check_scope`, `path_matches`, `changed_paths`, the `check-scope` command). Governed product truth is protected solely by the content-addressed approval digest — the one real boundary.
+- **The spec template's "Builder pointer"** ("Implement exactly this slice… commit once green, and stop") and the required `Scope` / `Out of Scope` / `Current State` / `Definition of Done` sections. Required sections are now just **Outcome, Acceptance criteria, Verification** (brownfield adds Compatibility/Rollback).
+
+### Changed
+
+- Spec template, examples (LINK-01/02, WEBHOOK-01), planner, `docs/specifications.md`, methodology, anti-patterns, transfer-evaluation, user-journey, agent-adapters, architect-playbook, and the boundary diagram reframed: a specification is the **next product obligation** in a continuing engineering mission, with wide engineering agency inside approved product truth — not a cage on files.
+- README corrected: it had advertised removed guarantees ("scope enforcement / protected paths cannot be touched", "fresh-session-per-spec runner", "one session per slice").
+
+### Added
+
+- Guardrail test `test_specs_are_obligations_not_bounded_executors` — fails if scope metadata, the scope-enforcement functions, or "implement exactly / commit and stop / disposable" framing ever return to the spec machinery.
+
+### Migration
+
+- v0.4.0-generated projects keep validating unchanged — leftover `touchable_paths`/`protected_paths` in existing specs are now simply ignored, not enforced. To fully adopt the model, drop those fields and any "implement exactly / Scope / Out of Scope" body framing from spec files, or regenerate them from the new template. No runtime break.
+
 ## [0.4.0] — 2026-08-29
 
 The Engineering Partner release: stop framing the implementer as a disposable executor and start treating it as a trusted, continuing engineer responsible for the whole product — then observe, with lightweight telemetry, what continuity and responsibility actually do. Motivated by a forensic review of a real project where an N+1 query fan-out and a Supabase/postgres.js production freeze escaped a framework strong at proving *specified* behavior but silent on *engineering fitness* and *current external-system behavior*. The bet: better framing, continuity, information, and independent feedback should prevent such defects at the source — with cheap sensors and a fresh reviewer as defense-in-depth, not as a growing rule catalogue.

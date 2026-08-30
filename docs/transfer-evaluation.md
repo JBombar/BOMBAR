@@ -33,12 +33,12 @@ Record exact missed questions or false assumptions. These become playbook improv
 
 ## Stage B — specifications
 
-Without correcting them, ask fresh Builders to execute the generated slices.
+Without correcting them, run the continuing Engineering Partner over the generated obligations.
 
 Measure:
 
-- percentage of slices completed without inventing product decisions;
-- scope violations caught by the runner;
+- percentage of obligations completed without inventing product decisions;
+- blockers raised for genuine product decisions rather than improvised;
 - references that had rotted or were false;
 - retries caused by spec ambiguity versus implementation error;
 - whether every acceptance ID had meaningful coverage;
@@ -49,7 +49,7 @@ Measure:
 
 Ask whether the Verifier:
 
-- found defects the Builder narrative omitted;
+- found material engineering defects no one enumerated;
 - inspected the full diff;
 - reproduced bite/non-disruption evidence;
 - distinguished gate-correct from intent-correct;
@@ -62,7 +62,7 @@ BOMBAR has transferred the method credibly when:
 
 - the Architect score is at least 13/16 with no zero in intent, acceptance, or architecture fit;
 - at least 80% of slices execute without requiring an unrecorded owner decision;
-- no Builder silently changes a governed artifact or protected path;
+- the Engineering Partner never silently changes a governed artifact (the approval digest enforces this);
 - every red/no-op/incomplete slice is surfaced rather than marked done;
 - independent verification finds no critical requirement absent from the frozen acceptance contract;
 - live claims remain unclaimed until externally observed.

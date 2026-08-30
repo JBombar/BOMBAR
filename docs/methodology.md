@@ -46,7 +46,6 @@ The Engineering Partner should not need the owner's accumulated intuition. The A
 - architecture boundaries;
 - invariants;
 - acceptance criteria;
-- touchable and protected paths;
 - tests and world sensors;
 - stop conditions.
 
@@ -72,7 +71,7 @@ Do not build a universal inner platform from one example. Implement a pattern co
 
 ## A blocker is a control result
 
-When an approved specification cannot be completed without new authority or changed intent, stopping is correct. A headless Builder that asks the owner questions, invents an answer, or silently expands scope has crossed the autonomy boundary.
+When an approved obligation cannot be completed without new authority or changed product intent, stopping is correct. A headless Engineering Partner that asks the owner questions it could responsibly resolve itself, invents an answer to a genuine product decision, or silently changes approved product truth has crossed the autonomy boundary. Touching whatever files competent implementation needs is not crossing it.
 
 ## Postmortems grow the surface
 

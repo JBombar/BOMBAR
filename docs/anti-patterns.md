@@ -12,17 +12,17 @@ A headless session can produce impressive documents without establishing shared 
 
 Tests can certify a simulation. A system may report `sent` while using a fake transport, or report an empty source after swallowing an authentication failure. Pair external actions with external sensors.
 
-## Builder-authored success criteria
+## Implementer-authored success criteria
 
 If acceptance changes after implementation to describe what was built, the project cannot fail. Freeze acceptance first and require a new owner approval when it changes.
 
-## Silent scope expansion
+## Silent product redesign
 
-Wide engineering agency covers *how* to build the product, never *what the product is*. Changing an approved product decision, invariant, or acceptance criterion is not an engineering call — the Engineering Partner files a change request rather than deciding it alone.
+Wide engineering agency covers *how* to build the product, never *what the product is*. Changing an approved product decision, invariant, or acceptance criterion is not an engineering call — the Engineering Partner files a change request rather than deciding it alone. This is the one real boundary; touching whatever implementation files the work needs is not a violation of it.
 
-## Always-on context landfill
+## Context force-feeding
 
-Giving every session the complete vision, research library, roadmap, and history dilutes the slice. Use progressive disclosure: stable contract, relevant design, assigned specification, local terrain.
+Cramming the complete vision, research library, and roadmap into every prompt drowns the current obligation in noise. Give the stable contract, the relevant design, the current obligation, and the local terrain — and let the Engineering Partner's own accumulated understanding (it continues across obligations) carry the rest. Progressive disclosure of the *artifacts* is not the same as denying the engineer its own memory.
 
 ## Documentation as executable misinformation
 
