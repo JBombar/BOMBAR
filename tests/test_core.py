@@ -65,6 +65,23 @@ class BombarCoreTests(unittest.TestCase):
         self.assertIn("next product obligation", low)
         self.assertIn("wide engineering agency", low)
 
+    def test_spec_auditor_challenges_without_legislating_or_defaulting_to_e2e(self) -> None:
+        # v0.4.2 guardrail: the Auditor discovers aggressively but does not promote
+        # discoveries into requirements, and never defaults verification to E2E.
+        auditor = (ROOT / "prompts/spec-auditor.md").read_text(encoding="utf-8").lower()
+        journey = (ROOT / "templates/project/__development/bombar/JOURNEY_MAP.md").read_text(encoding="utf-8").lower()
+
+        # Authority calibration: challenges, does not legislate; discovery != requirement.
+        self.assertIn("challenge; you do not legislate", auditor)
+        for lens in ("contradiction", "strongly-implied", "plausible additional"):
+            self.assertIn(lens, auditor, f"Auditor lost its finding lens: {lens!r}")
+
+        # Proportional verification: names what needs proof, not the mechanism; no E2E default.
+        self.assertNotIn("required end-to-end test", auditor)
+        self.assertNotIn("required end-to-end test", journey)
+        self.assertIn("imply a predetermined evidence mechanism", auditor)
+        self.assertIn("assign browser end-to-end tests", auditor)
+
     def test_approval_detects_drift(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = pathlib.Path(directory)

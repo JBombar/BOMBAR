@@ -2,6 +2,30 @@
 
 All notable changes to BOMBAR are documented here.
 
+## [0.4.2] — 2026-08-30
+
+Empirical fix from the first MimiBakeryB2B dogfood. The fresh-context Spec Auditor worked well — invoked as a genuinely independent sub-agent, it found real omissions (result curation, whole-run failure/recovery, an orphaned needs-review state, zero-result behavior, run cancellation, account provisioning) that the Architecture Partner had missed. But its raw output exposed two framework problems, both fixed here by recalibrating the Auditor's mandate — no new taxonomy, matrix, scoring, or orchestration.
+
+### Changed — Auditor authority calibration (challenge, don't legislate)
+
+The Auditor was promoting discovered-but-plausible journeys (self-service password reset, user-facing data deletion, operator-editable cost cap) straight to **critical launch requirements**. It now distinguishes, by confidence relative to *approved product truth*: a **contradiction/incompleteness** with what the brief and acceptance already commit to (must be resolved before freeze); a **strongly-implied gap** (needs an Owner decision); or a **plausible additional journey** (an open scope question with a proposed default — never an automatic requirement). Discovering a reasonable feature does not grant authority to require it; the Architecture Partner and Owner decide scope. The Auditor surfaces uncertainty; it does not set scope.
+
+### Changed — Auditor proportional verification (no E2E-everywhere)
+
+The Auditor was assigning a required browser end-to-end test to nearly every discovered journey and gating freeze on it — the same "important → therefore E2E → therefore run it every slice" pathology removed elsewhere in v0.4. It now names *what outcome needs credible proof* and explicitly does **not** prescribe the mechanism; verification type and cadence are the Architecture/Engineering Partners' proportional judgment (risk, affected behavior, information value, cost). Important journeys still get appropriate product-level verification. Fixed at the semantic source: `prompts/spec-auditor.md`, the `JOURNEY_MAP.md` template (the "Required test" column is now "outcome that needs credible proof"), `prompts/architect.md`, `docs/roles.md`, `docs/user-journey.md`.
+
+### Changed — fresh Auditor handoff
+
+The Architecture Partner now runs the Auditor as a **genuinely fresh independent sub-agent** where its runtime supports one (e.g. a Claude Code subagent that does not inherit the conversation) — the intended low-friction path proven in the dogfood — falling back to an Owner-run standalone session otherwise. One independent review boundary, not an agent society.
+
+### Added
+
+- Guardrail test `test_spec_auditor_challenges_without_legislating_or_defaulting_to_e2e`.
+
+### Migration
+
+- No mechanical migration; the Journey Map is not validator-enforced. For an existing v0.4.x project, re-read the Auditor's findings under the calibrated mandate: downgrade any "plausible feature" it marked critical to an Owner scope decision, and replace any blanket per-journey browser-E2E requirement with proportional verification.
+
 ## [0.4.1] — 2026-08-30
 
 Semantic migration. v0.4.0 moved the philosophy into the prompts and runtime, but the machinery that *manufactures* specifications still taught the old bounded-executor model — so a well-behaved Architecture Partner, reading the templates/schema/validator "so the artifacts pass," re-instantiated exactly the narrow-executor semantics we set out to remove. This deletes those remnants. It is a net removal (−247/+116), not a new layer.

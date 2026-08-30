@@ -64,7 +64,11 @@ what the owner stated — and finds every human outcome that would be missing or
 unreachable if the obligations were implemented literally. It interrogates the owner
 about gaps with proposed defaults, produces the Journey Map, and reviews the slicing
 (flagging fragmented, oversized, or horizontal-layer specs). It probes WHAT users
-must do, never HOW to build it, and it neither freezes nor implements. Prompt:
+must do, never HOW to build it. It **challenges but does not legislate**: a plausible
+feature it discovers is an open scope question for the Architecture Partner and owner
+to decide, not an automatic launch requirement, and it names what outcome needs
+credible proof without prescribing a verification mechanism (no default to browser
+E2E). It neither freezes nor implements. Prompt:
 `prompts/spec-auditor.md`.
 
 ## Auditor
