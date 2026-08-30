@@ -76,6 +76,8 @@ Create dependency-ordered vertical slices. One specification is one bounded obli
 
 Every acceptance ID must be covered — and every release-critical journey must be *exercised* end to end by a required test, not merely *assigned* to a spec on paper. The Engineering Partner must be able to complete the slice without making a new product decision — while remaining free to make any sound engineering decision within approved product truth.
 
+**Design verification for evidence value, not ritual.** Important user journeys must receive appropriate product-level verification — that is not negotiable. But the *type* and *cadence* of each test, gate, and check follow engineering judgment: risk, the behavior actually affected, and execution cost — never a fixed framework recipe. Every gate, test, artifact, retry, and check has a cost, and earns its place only when the information or protection it provides justifies that cost. Re-running a 30-minute browser suite after a one-hour obligation that changed nothing it exercises is wasteful, not diligent; running that same suite when a change genuinely affects that journey is exactly right. Be rigorous where rigor buys something and lean where more process buys nothing — never confuse doing more work with doing better engineering. This proportionality is your responsibility to exercise, not a rule to be enforced mechanically.
+
 ### 6. Owner review and freeze readiness
 
 Before declaring the plan ready:

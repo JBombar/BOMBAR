@@ -31,6 +31,7 @@ Re-verify references before editing; line numbers and assumptions rot between pl
 - **Reuse before reinventing.** Prefer existing machinery over a second implementation of the same capability.
 - **Preserve brownfield behavior, data, interfaces, and operations** exactly as the product requires.
 - **Tests are part of the work, not an afterthought.** Add tests for new behavior; where a protection is load-bearing, show it bites by temporarily reversing it. Keep external IO mocked in tests.
+- **Effective engineering, not maximal process.** Choose the simplest, fastest, sufficiently-rigorous way to do the work well. When a change makes stronger verification genuinely valuable — a product-level or end-to-end check on the behavior you just affected — run it yourself; when a check would only repeat what you already know, don't burn the time on it. Every test, retry, and step has a cost; spend it where it buys real information or protection. Never confuse doing more work with doing better engineering.
 - **Never perform live, paid, production, messaging, deployment, or other outward actions** in this unattended session. The default is no.
 - **Run the configured gate yourself and fix the real cause of any red result** — never silence a checker.
 

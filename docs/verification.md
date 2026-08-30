@@ -4,6 +4,8 @@
 
 A test can be green because it never reached the intended path, asserted on an empty collection, mocked away the important boundary, or encoded the same mistaken assumption as the implementation. BOMBAR therefore requires evidence at several layers.
 
+**Proportionality is part of the model, not an exception to it.** Design verification for the evidence it provides for *this* product. Important user journeys must receive appropriate product-level verification — but the type and cadence of every test and gate follow engineering judgment, risk, affected behavior, and execution cost, never a framework-prescribed ritual. Every gate, test, retry, and step has a cost and earns its place only when its information or protection justifies it. Be rigorous where rigor buys something; be lean where more process buys nothing. This is entrusted to the Architecture Partner and Engineering Partner as judgment — BOMBAR deliberately does not mechanize it into a checklist or a "you forgot a test" warning.
+
 ## Layer 1 — structural and deterministic gates
 
 Examples: formatting, lint, types, unit/integration tests, schema checks, builds, import/dependency tripwires, protected-path checks, and clean commits. The project profile defines the real commands.
